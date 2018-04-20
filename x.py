@@ -13,7 +13,7 @@ import tensorflow as tf
 # tf.nn.relu
 # LAYER_UNITS = [800, 800, 5]
 # ACTIVATIONS = [None, tf.nn.relu, None]
-LAYER_UNITS = [500, 5]
+LAYER_UNITS = [800, 5]
 ACTIVATIONS = [tf.nn.relu, None]
 DROPOUT = 0.7
 STATE_STEPS = 10
@@ -21,10 +21,11 @@ CHECK_STEPS = 2
 BATCH_SIZE = 10
 LEARNING_RATE = 0.0002
 TRAIN_PROPORTION = 0.7
-LOG_DIR = "tmp/drifter/quadratic_lag_10_steps_quad_net_h1_thetad1_init8/"
+LOG_DIR = "tmp/drifter/quadratic_lag_10_steps_quad_net_h1_thetad1_init_6/"
 THETA_SCALING = 1.
 RPM_SCALING = 20000.
 VOLTAGE_SCALING = 10.
+STD_DEV = 0.001
 
 def parse_bag_file(bag_file):
     """
@@ -191,8 +192,8 @@ def dense_net(input_, training, name="dense_net", reuse=False):
                     units=num_units,
                     activation=activation,
                     # kernel_initializer=tf.contrib.layers.xavier_initializer(dtype=tf.float32),
-                    # kernel_initializer=tf.random_normal_initializer(STD_DEV),
-                    kernel_initializer=tf.zeros_initializer(),
+                    kernel_initializer=tf.random_normal_initializer(stddev=STD_DEV),
+                    # kernel_initializer=tf.zeros_initializer(),
                     # bias_initializer=tf.random_normal_initializer(),
                     name="dense_" + str(i),
                     reuse=reuse)
@@ -254,8 +255,8 @@ def f(state_batch, control_batch, training):
 
         output_ = dense_net(input_, training=training)
 
-    # return quadratic_lag + output_
-    return quadratic_lag
+    return quadratic_lag + output_
+    # return quadratic_lag
 
 # def runge_kutta_loss(state_batch, control_batch, state_check_batch, control_check_batch):
     # k1 = f(state_batch, control_batch)
