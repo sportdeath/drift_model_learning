@@ -1,45 +1,73 @@
+#!/usr/bin/env python3
+
 """
-Train a neural network
+Train a neural network to learn
+drift
 """
 
+import os
 import csv
 import numpy as np
 import tensorflow as tf
-# import matplotlib.pyplot as plt
 
-# Constants
-# ACTIVATION = None
-# ACTIVATION = tf.nn.leaky_relu
-# tf.nn.relu
-# LAYER_UNITS = [800, 800, 5]
-# ACTIVATIONS = [None, tf.nn.relu, None]
+LOG_DIR = "tmp/drifter/new_data_9/"
+
+"""
+The number of units and the 
+activation function used at the
+output of each layer of the network
+"""
 LAYER_UNITS = [800, 5]
 ACTIVATIONS = [tf.nn.relu, None]
+
+"""
+Percentage of the time that
+a node is not dropped out.
+"""
 DROPOUT = 0.7
+
+"""
+The number of states to check
+"""
 STATE_STEPS = 10
-CHECK_STEPS = 2
-BATCH_SIZE = 10
+
+"""
+The number of future states to verify.
+"""
+CHECK_STEPS = 9
+
+"""
+The number of elements in a training batch.
+"""
+BATCH_SIZE = 20
 LEARNING_RATE = 0.0002
-TRAIN_PROPORTION = 0.7
-LOG_DIR = "tmp/drifter/quadratic_lag_10_steps_quad_net_h1_thetad1_init_6/"
 THETA_SCALING = 1.
 RPM_SCALING = 20000.
 VOLTAGE_SCALING = 10.
 STD_DEV = 0.001
+TRAIN_DIR = "./train/"
+VALIDATION_DIR = "./validation/"
 
-def parse_bag_file(bag_file):
-    """
-    Parses raw car data into numpy arrays.
+def read_chunks(directory):
+    t_chunks = []
+    state_chunks = []
+    control_chunks = []
+    for filename in os.listdir(directory):
+        if filename.endswith(".bag.csv"):
+            f = os.path.join(directory, filename)
+            t, state, control = read_bag_csv_file(f)
 
-    Args:
-        One of Corey's .bag.csv files.
+            t_chunks.append(t)
+            state_chunks.append(state)
+            control_chunks.append(control)
 
-    Returns:
-        t: A time vector.
-        observed_states: 
-    """
+    p_chunks = np.array([len(chunk) for chunk in state_chunks])
+    p_chunks = p_chunks/np.sum(p_chunks)
 
-    with open(bag_file, 'r') as bag_file:
+    return t_chunks, state_chunks, control_chunks, p_chunks
+
+def read_bag_csv_file(file_path):
+    with open(file_path, 'r') as bag_file:
         reader = csv.reader(bag_file)
 
         data = []
@@ -75,6 +103,7 @@ def parse_bag_file(bag_file):
     return t, states, controls
 
 def plot_time(t):
+    import matplotlib.pyplot as plt
     s = np.arange(len(t))
     plt.figure()
     plt.title('Time')
@@ -89,6 +118,9 @@ def plot_state_poses(states, bounding_box=1.):
         states: A numpy array where the last dimension
             is (x, y, theta, omega, V)
     """
+    
+    import matplotlib.pyplot as plt
+
     while len(states.shape) > 2:
         states = states[0]
 
@@ -109,64 +141,53 @@ def plot_state_poses(states, bounding_box=1.):
     plt.xlim((-bounding_box, bounding_box))
     plt.show()
 
-def random_batch(states, controls):
-    """
-    The inputs
-    Returns:
-        state_batch: [BATCH_SIZE, STATE_STEPS, 5]
-        control_batch: [BATCH_SIZE, STATE_STEPS, 2]
-        state_check_batch: [BATCH_SIZE, CHECK_STEPS, 5]
-        control_check_batch: [BATCH_SIZE, CHECK_STEPS, 2]
-    """
+def random_batch(state_chunks, control_chunks, p_chunks):
+    # Sample which chunk
+    chunk_choices = np.random.choice(len(state_chunks), size=BATCH_SIZE, p=p_chunks)
 
-    # Uniformly sample the starting locations
-    choices = np.random.randint(len(states) - STATE_STEPS - CHECK_STEPS + 1, size=(BATCH_SIZE, 1))
+    # Sample where to start in the chunk
+    start_choices = [np.random.randint(len(state_chunks[i])) for i in chunk_choices]
 
-    # Sample the step size
-    indices = np.expand_dims(np.arange(STATE_STEPS + CHECK_STEPS), axis=0)
-    indices = np.tile(indices, (BATCH_SIZE, 1))
-    choices = choices + indices
+    state_batch = []
+    state_check_batch = []
+    control_batch = []
+    control_check_batch = []
 
-    state_batch = np.take(states, choices, axis=0)
-    control_batch = np.take(controls, choices, axis=0)
+    for chunk_choice in chunk_choices:
+        start_choice = np.random.randint(len(state_chunks[chunk_choice]) - STATE_STEPS - CHECK_STEPS + 1)
+
+        state_batch.append(state_chunks[chunk_choice][start_choice:start_choice+STATE_STEPS + CHECK_STEPS])
+        control_batch.append(control_chunks[chunk_choice][start_choice:start_choice+STATE_STEPS + CHECK_STEPS])
+
+    state_batch = np.array(state_batch)
+    control_batch = np.array(control_batch)
 
     state_check_batch = state_batch[:,-CHECK_STEPS:,:]
     control_check_batch = control_batch[:,-CHECK_STEPS:,:]
     state_batch = state_batch[:,:STATE_STEPS,:]
     control_batch = control_batch[:,:STATE_STEPS,:]
 
-    mean_pose_ = mean_pose(state_batch)
-    state_batch = mean_offset(state_batch, mean_pose_)
-    state_check_batch = mean_offset(state_check_batch, mean_pose_)
-
     return state_batch, control_batch, state_check_batch, control_check_batch
 
-def mean_pose(state_batch):
-    x_mean = np.mean(state_batch[:, :, 0], axis=1)
-    y_mean = np.mean(state_batch[:, :, 1], axis=1)
-    # theta_mean = np.arctan2(
-            # np.sum(np.sin(state_batch[:, :, 2]), axis=1), 
-            # np.sum(np.cos(state_batch[:, :, 2]), axis=1))
-    theta_mean = np.mean(state_batch[:, :, 2], axis=1)
+def normalize_batch(state_batch, state, name="normalize_batch"):
+    with tf.variable_scope(name):
+        state = tf.reshape(state[:,:3], (BATCH_SIZE, 1, 3))
 
-    mean = np.stack([x_mean, y_mean, theta_mean], axis=1)
-    mean = np.reshape(mean, (-1, 1, 3))
+        # Rotate the positions by the mean theta
+        c, s = tf.cos(-state[:, :, 2]), tf.sin(-state[:, :, 2])
+        R = tf.stack((
+                tf.stack((c, -s), axis=2),
+                tf.stack((s,  c), axis=2)),
+                axis=2)
+        R = tf.tile(R, (1, tf.shape(state_batch)[1], 1, 1))
 
-    return mean
+        position = tf.matmul(R, tf.expand_dims(state_batch[:,:,:2] - state[:,:,:2], axis=-1))
+        theta = state_batch[:,:,2] - state[:,:,2]
 
-def mean_offset(state_batch, mean_pose_):
-    state_batch[:,:,:3] -= mean_pose_
-
-    # Rotate the positions by the mean theta
-    c, s = np.cos(-mean_pose_[:, :, 2]), np.sin(-mean_pose_[:, :, 2])
-    R = np.stack((
-            np.stack((c, -s), axis=2),
-            np.stack((s,  c), axis=2)),
-            axis=2)
-
-    state_batch = np.expand_dims(state_batch, axis=-1)
-    state_batch[:, :, :2] = np.matmul(R, state_batch[:, :, :2])
-    state_batch = np.squeeze(state_batch, axis=3)
+        state_batch = tf.concat((
+            tf.reshape(position, (BATCH_SIZE, tf.shape(position)[1], 2)),
+            tf.expand_dims(theta, axis=2),
+            state_batch[:,:,3:5]),axis=2)
 
     return state_batch
  
@@ -180,10 +201,6 @@ def dense_net(input_, training, name="dense_net", reuse=False):
     with tf.variable_scope(name, reuse=reuse):
 
         for i, num_units in enumerate(LAYER_UNITS):
-            # Make the last layer linear
-            # activation = None
-            # if i < len(LAYER_UNITS) - 1:
-                # activation = ACTIVATION 
             activation = ACTIVATIONS[i]
 
             # Dense connection
@@ -191,10 +208,7 @@ def dense_net(input_, training, name="dense_net", reuse=False):
                     inputs=hidden,
                     units=num_units,
                     activation=activation,
-                    # kernel_initializer=tf.contrib.layers.xavier_initializer(dtype=tf.float32),
                     kernel_initializer=tf.random_normal_initializer(stddev=STD_DEV),
-                    # kernel_initializer=tf.zeros_initializer(),
-                    # bias_initializer=tf.random_normal_initializer(),
                     name="dense_" + str(i),
                     reuse=reuse)
 
@@ -221,79 +235,92 @@ def dense_net(input_, training, name="dense_net", reuse=False):
 
     return hidden
 
-def beta(x):
-    s = tf.concat((
-            x,
-            tf.square(tf.maximum(0.,x)),
-            tf.square(tf.minimum(0.,x))),
-            axis=2)
-    return s
+def beta(x, name="beta"):
+    with tf.variable_scope(name):
+        return tf.concat((
+                x,
+                tf.square(tf.maximum(0.,x)),
+                tf.square(tf.minimum(0.,x))),
+                axis=2)
 
+def quadratic_lag_model(state_batch, control_batch, reuse, name="quadratic_lag_model"):
+    with tf.variable_scope(name, reuse=reuse):
+        state_weights = tf.get_variable(
+                name="state_weights", 
+                initializer=tf.zeros_initializer(),
+                shape=(BATCH_SIZE, STATE_STEPS, 5, 5 * 3))
+        control_weights = tf.get_variable(
+                name="control_weights", 
+                initializer=tf.zeros_initializer(),
+                shape=(BATCH_SIZE, STATE_STEPS, 5, 2 * 3))
+        state_batch_beta = tf.expand_dims(beta(state_batch), axis=3)
+        control_batch_beta = tf.expand_dims(beta(control_batch), axis=3)
+        quadratic_lag = \
+                tf.reduce_sum(tf.matmul(state_weights, state_batch_beta), axis=1) +\
+                tf.reduce_sum(tf.matmul(control_weights, control_batch_beta), axis=1)
+        quadratic_lag = tf.squeeze(quadratic_lag)
 
-def f(state_batch, control_batch, training):
-    with tf.variable_scope("f"):
-        with tf.variable_scope("quadratic_lag_model"):
-            state_weights = tf.Variable(
-                    tf.zeros((BATCH_SIZE, STATE_STEPS, 5, 5 * 3)),
-                    name="state_weights", 
-                    trainable=True)
-            control_weights = tf.Variable(
-                    tf.zeros((BATCH_SIZE, STATE_STEPS, 5, 2 * 3)),
-                    name="control_weights", 
-                    trainable=True)
-            state_batch_beta = tf.expand_dims(beta(state_batch), axis=3)
-            control_batch_beta = tf.expand_dims(beta(control_batch), axis=3)
-            quadratic_lag = \
-                    tf.reduce_sum(tf.matmul(state_weights, state_batch_beta), axis=1) +\
-                    tf.reduce_sum(tf.matmul(control_weights, control_batch_beta), axis=1)
-            quadratic_lag = tf.squeeze(quadratic_lag)
+    return quadratic_lag
+
+def f(state_batch, control_batch, training, reuse, name="f"):
+    with tf.variable_scope(name):
+        quadratic_lag = quadratic_lag_model(state_batch, control_batch, reuse)
 
         input_ = tf.concat((
             tf.layers.flatten(beta(state_batch)),
             tf.layers.flatten(beta(control_batch))),
             axis=1)
 
-        output_ = dense_net(input_, training=training)
+        output_ = dense_net(input_, training=training, reuse=reuse)
 
     return quadratic_lag + output_
-    # return quadratic_lag
 
-# def runge_kutta_loss(state_batch, control_batch, state_check_batch, control_check_batch):
-    # k1 = f(state_batch, control_batch)
-    # k2 = f(state_batch + h * k1, tf.concat((control_batch[:,1:,:], control_check_batch[:,:1,:]), axis=1))
-    # k3 = f(state_batch + h * k2, tf.concat((control_batch[:,1:,:], control_check_batch[:,:1,:]), axis=1))
-    # k4 = f(state_batch + 2 * h * k3, tf.concat((control_batch[:,2:,:], control_check_batch[:,:2,:]), axis=1))
-    # control_check_batch[:,1
+def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False, name="forward_euler_loss"):
+    with tf.variable_scope(name):
 
-def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training):
-    predicted = state_batch[:,-1] + (state_batch[:,-1] - state_batch[:,-2] + h * f(state_batch, control_batch, training))
-    # predicted = state_batch[:,-1] + h * f(state_batch, control_batch, training)
+        origin_batch = tf.zeros((BATCH_SIZE, 1, 3))
+        for i in range(CHECK_STEPS):
+            if i > 0:
+                reuse = True
 
-    loss = tf.reduce_sum(tf.square(predicted - state_check_batch[:,0]))
+            origin_batch = normalize_batch(origin_batch, state_batch[:, -1])
+            state_batch = normalize_batch(state_batch, state_batch[:, -1])
 
-    differences = predicted - state_check_batch[:,0]
-    tf.summary.scalar("position_loss", tf.reduce_mean(tf.norm(differences[:,:2],axis=1)))
-    tf.summary.scalar("theta_loss", tf.reduce_mean(THETA_SCALING * tf.abs(differences[:,2])))
-    tf.summary.scalar("rpm_loss", tf.reduce_mean(RPM_SCALING * tf.abs(differences[:,3])))
-    tf.summary.scalar("voltage_loss", tf.reduce_mean(VOLTAGE_SCALING * tf.abs(differences[:,4])))
+            predicted = state_batch[:,-1] + (state_batch[:,-1] - state_batch[:,-2] + h * f(state_batch, control_batch, training, reuse))
 
-    return loss
+            # Combine the state with the previous ones
+            state_batch = tf.concat((
+                    state_batch[:,1:],
+                    tf.expand_dims(predicted,axis=1)),
+                    axis=1)
+            control_batch = tf.concat((
+                    control_batch[:,1:],
+                    tf.expand_dims(control_check_batch[:,i], axis=1)),
+                    axis=1)
+
+        # Unnormalize the final state
+        state_batch = normalize_batch(state_batch, origin_batch)
+
+        loss = tf.reduce_sum(tf.square(state_batch[:,-1] - state_check_batch[:,-1]))
+
+        differences = state_batch[:,-1] - state_check_batch[:,-1]
+        tf.summary.scalar("position_loss", tf.reduce_mean(tf.norm(differences[:,:2],axis=1)))
+        tf.summary.scalar("theta_loss", tf.reduce_mean(THETA_SCALING * tf.abs(differences[:,2])))
+        tf.summary.scalar("rpm_loss", tf.reduce_mean(RPM_SCALING * tf.abs(differences[:,3])))
+        tf.summary.scalar("voltage_loss", tf.reduce_mean(VOLTAGE_SCALING * tf.abs(differences[:,4])))
+
+        return loss
 
 def main():
     # Read the input data
-    t, states, controls = parse_bag_file("random_driving_chunk_4.bag.csv")
-    num_train = int(TRAIN_PROPORTION * len(states))
-    states_train = states[:num_train]
-    controls_train = controls[:num_train]
-    states_validation = states[num_train:]
-    controls_validation = controls[num_train:]
+    t_chunks, state_chunks, control_chunks, p_chunks = read_chunks(TRAIN_DIR)
+    t_chunks_val, state_chunks_val, control_chunks_val, p_chunks_val = read_chunks(VALIDATION_DIR)
 
     # Compute the average time step
-    h = np.mean(np.diff(t))
-    # h = 1.
+    h = np.mean(np.diff(t_chunks[0]))
 
     # Make placeholders
-    h_ph = tf.placeholder(tf.float32, name="h")
+    h_ph = tf.placeholder(tf.float32, shape=(), name="h")
     training_ph = tf.placeholder(tf.bool, name="training")
     state_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, STATE_STEPS, 5), name="state_batch")
     control_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, STATE_STEPS, 2), name="control_batch")
@@ -322,7 +349,7 @@ def main():
         for i in range(2000000):
             # Make random positive and unlabeled batches
             state_batch, control_batch, state_check_batch, control_check_batch = random_batch(
-                    states_train, controls_train)
+                    state_chunks, control_chunks, p_chunks)
 
             feed_dict = {}
             feed_dict[h_ph] = h
@@ -342,7 +369,7 @@ def main():
                 baseline_summary = session.run(summary, feed_dict=feed_dict)
 
                 state_batch, control_batch, state_check_batch, control_check_batch = random_batch(
-                        states_validation, controls_validation)
+                        state_chunks_val, control_chunks_val, p_chunks_val)
 
                 feed_dict[h_ph] = h
                 feed_dict[state_batch_ph] = state_batch
