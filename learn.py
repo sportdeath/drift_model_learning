@@ -10,15 +10,15 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/new_data_9/"
+LOG_DIR = "tmp/drifter/new_data_15/"
 
 """
 The number of units and the 
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [800, 5]
-ACTIVATIONS = [tf.nn.relu, None]
+LAYER_UNITS = [800, 800, 5]
+ACTIVATIONS = [tf.nn.relu, tf.nn.relu, None]
 
 """
 Percentage of the time that
@@ -41,9 +41,9 @@ The number of elements in a training batch.
 """
 BATCH_SIZE = 20
 LEARNING_RATE = 0.0002
-THETA_SCALING = 1.
+THETA_SCALING = 0.1
 RPM_SCALING = 20000.
-VOLTAGE_SCALING = 10.
+VOLTAGE_SCALING = 100.
 STD_DEV = 0.001
 TRAIN_DIR = "./train/"
 VALIDATION_DIR = "./validation/"
@@ -247,11 +247,11 @@ def quadratic_lag_model(state_batch, control_batch, reuse, name="quadratic_lag_m
     with tf.variable_scope(name, reuse=reuse):
         state_weights = tf.get_variable(
                 name="state_weights", 
-                initializer=tf.zeros_initializer(),
+                initializer=tf.random_normal_initializer(stddev=STD_DEV),
                 shape=(BATCH_SIZE, STATE_STEPS, 5, 5 * 3))
         control_weights = tf.get_variable(
                 name="control_weights", 
-                initializer=tf.zeros_initializer(),
+                initializer=tf.random_normal_initializer(stddev=STD_DEV),
                 shape=(BATCH_SIZE, STATE_STEPS, 5, 2 * 3))
         state_batch_beta = tf.expand_dims(beta(state_batch), axis=3)
         control_batch_beta = tf.expand_dims(beta(control_batch), axis=3)
@@ -264,7 +264,7 @@ def quadratic_lag_model(state_batch, control_batch, reuse, name="quadratic_lag_m
 
 def f(state_batch, control_batch, training, reuse, name="f"):
     with tf.variable_scope(name):
-        quadratic_lag = quadratic_lag_model(state_batch, control_batch, reuse)
+        # quadratic_lag = quadratic_lag_model(state_batch, control_batch, reuse)
 
         input_ = tf.concat((
             tf.layers.flatten(beta(state_batch)),
@@ -273,7 +273,9 @@ def f(state_batch, control_batch, training, reuse, name="f"):
 
         output_ = dense_net(input_, training=training, reuse=reuse)
 
-    return quadratic_lag + output_
+    # return quadratic_lag + output_
+    # return quadratic_lag
+    return output_
 
 def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False, name="forward_euler_loss"):
     with tf.variable_scope(name):
@@ -287,6 +289,7 @@ def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control
             state_batch = normalize_batch(state_batch, state_batch[:, -1])
 
             predicted = state_batch[:,-1] + (state_batch[:,-1] - state_batch[:,-2] + h * f(state_batch, control_batch, training, reuse))
+            # - state_batch[:,-2]
 
             # Combine the state with the previous ones
             state_batch = tf.concat((
