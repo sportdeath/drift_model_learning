@@ -10,15 +10,15 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/downsample_pos_scale_multiple_losses/"
+LOG_DIR = "tmp/drifter/super_small_net/"
 
 """
 The number of units and the 
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [800, 800, 5]
-ACTIVATIONS = [tf.nn.relu, tf.nn.relu, None]
+LAYER_UNITS = [800, 5]
+ACTIVATIONS = [tf.nn.relu, None]
 
 """
 The integer factor to downsample
@@ -47,7 +47,7 @@ The number of elements in a training batch.
 """
 BATCH_SIZE = 10
 LEARNING_RATE = 0.0001
-POSITION_SCALING = 0.2
+POSITION_SCALING = 0.1
 THETA_SCALING = 0.1
 RPM_SCALING = 20000.
 VOLTAGE_SCALING = 10.
@@ -315,9 +315,9 @@ def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control
                     tf.expand_dims(control_check_batch[:,i], axis=1)),
                     axis=1)
 
-            # Unnormalize the prediction
-            prediction_unnormalized = normalize_batch(prediction, origin_batch)
-            loss = loss + tf.reduce_sum(tf.square(prediction_unnormalized[:,0] - state_check_batch[:,i]))
+        # Unnormalize the prediction
+        prediction_unnormalized = normalize_batch(prediction, origin_batch)
+        loss = loss + tf.reduce_sum(tf.square(prediction_unnormalized[:,0] - state_check_batch[:,i]))
 
         # Write for summaries
         differences = prediction_unnormalized[:,0] - state_check_batch[:,-1]
@@ -363,6 +363,8 @@ def main():
         validation_writer = tf.summary.FileWriter(LOG_DIR + "validation")
         baseline_writer = tf.summary.FileWriter(LOG_DIR + "baseline")
 
+        saver = tf.train.Saver()
+
         for i in range(2000000):
             # Make random positive and unlabeled batches
             state_batch, control_batch, state_check_batch, control_check_batch = random_batch(
@@ -400,6 +402,10 @@ def main():
                 validation_writer.add_summary(validation_summary, i)
                 baseline_writer.add_summary(baseline_summary, i)
                 print(i)
+
+            if i % 100000 == 0:
+                print("Saving...")
+                saver.save(session, LOG_DIR + "model.ckpt")
 
 if __name__ == "__main__":
     main()
