@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from learn import *
 
-TENSORFLOW_GRAPH = "tmp/drifter/medium_net/model.ckpt"
+TENSORFLOW_GRAPH = "model.ckpt"
 
 class TestDriftModel:
 
