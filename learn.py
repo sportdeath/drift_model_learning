@@ -10,15 +10,15 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/super_small_net/"
+LOG_DIR = "tmp/drifter/medium_net/"
 
 """
 The number of units and the 
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [800, 5]
-ACTIVATIONS = [tf.nn.relu, None]
+LAYER_UNITS = [800, 800, 5]
+ACTIVATIONS = [tf.nn.relu, tf.nn.relu, None]
 
 """
 The integer factor to downsample
@@ -46,7 +46,6 @@ CHECK_STEPS = 10
 The number of elements in a training batch.
 """
 BATCH_SIZE = 10
-LEARNING_RATE = 0.0001
 POSITION_SCALING = 0.1
 THETA_SCALING = 0.1
 RPM_SCALING = 20000.
@@ -54,6 +53,10 @@ VOLTAGE_SCALING = 10.
 STD_DEV = 0.001
 TRAIN_DIR = "./train/"
 VALIDATION_DIR = "./validation/"
+LEARNING_RATE_START = 0.0005
+LEARNING_RATE_END = 0.00001
+LEARNING_RATE_END_STEPS = 1000000
+LEARNING_RATE_POWER = 0.5
 
 def read_chunks(directory):
     t_chunks = []
@@ -293,7 +296,6 @@ def f(state_batch, control_batch, training, reuse, name="f"):
 def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False, name="forward_euler_loss"):
     with tf.variable_scope(name):
 
-        loss = 0
         origin_batch = tf.zeros((BATCH_SIZE, 1, 3))
         for i in range(CHECK_STEPS):
             if i > 0:
@@ -317,7 +319,7 @@ def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control
 
         # Unnormalize the prediction
         prediction_unnormalized = normalize_batch(prediction, origin_batch)
-        loss = loss + tf.reduce_sum(tf.square(prediction_unnormalized[:,0] - state_check_batch[:,i]))
+        loss = tf.reduce_sum(tf.square(prediction_unnormalized[:,0] - state_check_batch[:,i]))
 
         # Write for summaries
         differences = prediction_unnormalized[:,0] - state_check_batch[:,-1]
@@ -348,12 +350,22 @@ def main():
     loss = forward_euler_loss(h_ph, state_batch_ph, control_batch_ph, state_check_batch_ph, control_check_batch_ph, training_ph)
 
     tf.summary.scalar("loss", loss)
-    summary = tf.summary.merge_all()
+
+    global_step = tf.Variable(0, trainable=False)
+    learning_rate = tf.train.polynomial_decay(
+            LEARNING_RATE_START,
+            global_step,
+            LEARNING_RATE_END_STEPS,
+            LEARNING_RATE_END,
+            power=LEARNING_RATE_POWER)
+    tf.summary.scalar("learning_rate", learning_rate)
 
     # Optimize
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS) # For batch norm
     with tf.control_dependencies(update_ops):
-        optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(loss)
+        optimizer = tf.train.AdamOptimizer(learning_rate).minimize(loss, global_step=global_step)
+
+    summary = tf.summary.merge_all()
 
     with tf.Session() as session:
         session.run(tf.local_variables_initializer())
