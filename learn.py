@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/new_data_15/"
+LOG_DIR = "tmp/drifter/downsample_pos_scale_multiple_losses/"
 
 """
 The number of units and the 
@@ -19,6 +19,12 @@ output of each layer of the network
 """
 LAYER_UNITS = [800, 800, 5]
 ACTIVATIONS = [tf.nn.relu, tf.nn.relu, None]
+
+"""
+The integer factor to downsample
+the data. Default rate is 120hz
+"""
+DOWNSAMPLE = 4
 
 """
 Percentage of the time that
@@ -34,16 +40,17 @@ STATE_STEPS = 10
 """
 The number of future states to verify.
 """
-CHECK_STEPS = 9
+CHECK_STEPS = 10
 
 """
 The number of elements in a training batch.
 """
-BATCH_SIZE = 20
-LEARNING_RATE = 0.0002
+BATCH_SIZE = 10
+LEARNING_RATE = 0.0001
+POSITION_SCALING = 0.2
 THETA_SCALING = 0.1
 RPM_SCALING = 20000.
-VOLTAGE_SCALING = 100.
+VOLTAGE_SCALING = 10.
 STD_DEV = 0.001
 TRAIN_DIR = "./train/"
 VALIDATION_DIR = "./validation/"
@@ -78,6 +85,10 @@ def read_bag_csv_file(file_path):
 
         data = np.array(data, dtype=np.float64)
 
+        # Downsample the data
+        data = data[::DOWNSAMPLE]
+
+        # Extract t, state, control
         t = data[:, 0]
         t -= t[0]
         controls = data[:, 1:3]
@@ -96,6 +107,7 @@ def read_bag_csv_file(file_path):
 
         # Scale
         controls[:,0] /= RPM_SCALING
+        states[:, :2] /= POSITION_SCALING
         states[:, 2] /= THETA_SCALING
         states[:, 3] /= RPM_SCALING
         states[:, 4] /= VOLTAGE_SCALING
@@ -212,11 +224,12 @@ def dense_net(input_, training, name="dense_net", reuse=False):
                     name="dense_" + str(i),
                     reuse=reuse)
 
-            with tf.variable_scope("dense_"+str(i), reuse=True):
-                weights = tf.get_variable("kernel")
-                tf.summary.histogram("dense_" + str(i) + "_weights", weights)
-                bias = tf.get_variable("bias")
-                tf.summary.histogram("dense_" + str(i) + "_biases", bias)
+            if not reuse:
+                with tf.variable_scope("dense_"+str(i), reuse=True):
+                    weights = tf.get_variable("kernel")
+                    tf.summary.histogram("dense_" + str(i) + "_weights", weights)
+                    bias = tf.get_variable("bias")
+                    tf.summary.histogram("dense_" + str(i) + "_biases", bias)
 
             if i < len(LAYER_UNITS) - 1:
                 # Batch renorm
@@ -280,6 +293,7 @@ def f(state_batch, control_batch, training, reuse, name="f"):
 def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False, name="forward_euler_loss"):
     with tf.variable_scope(name):
 
+        loss = 0
         origin_batch = tf.zeros((BATCH_SIZE, 1, 3))
         for i in range(CHECK_STEPS):
             if i > 0:
@@ -288,26 +302,26 @@ def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control
             origin_batch = normalize_batch(origin_batch, state_batch[:, -1])
             state_batch = normalize_batch(state_batch, state_batch[:, -1])
 
-            predicted = state_batch[:,-1] + (state_batch[:,-1] - state_batch[:,-2] + h * f(state_batch, control_batch, training, reuse))
-            # - state_batch[:,-2]
+            prediction = state_batch[:,-1] + (state_batch[:,-1] - state_batch[:,-2] + h * f(state_batch, control_batch, training, reuse))
+            prediction = tf.expand_dims(prediction,axis=1)
 
             # Combine the state with the previous ones
             state_batch = tf.concat((
                     state_batch[:,1:],
-                    tf.expand_dims(predicted,axis=1)),
+                    prediction),
                     axis=1)
             control_batch = tf.concat((
                     control_batch[:,1:],
                     tf.expand_dims(control_check_batch[:,i], axis=1)),
                     axis=1)
 
-        # Unnormalize the final state
-        state_batch = normalize_batch(state_batch, origin_batch)
+            # Unnormalize the prediction
+            prediction_unnormalized = normalize_batch(prediction, origin_batch)
+            loss = loss + tf.reduce_sum(tf.square(prediction_unnormalized[:,0] - state_check_batch[:,i]))
 
-        loss = tf.reduce_sum(tf.square(state_batch[:,-1] - state_check_batch[:,-1]))
-
-        differences = state_batch[:,-1] - state_check_batch[:,-1]
-        tf.summary.scalar("position_loss", tf.reduce_mean(tf.norm(differences[:,:2],axis=1)))
+        # Write for summaries
+        differences = prediction_unnormalized[:,0] - state_check_batch[:,-1]
+        tf.summary.scalar("position_loss", tf.reduce_mean(POSITION_SCALING * tf.norm(differences[:,:2],axis=1)))
         tf.summary.scalar("theta_loss", tf.reduce_mean(THETA_SCALING * tf.abs(differences[:,2])))
         tf.summary.scalar("rpm_loss", tf.reduce_mean(RPM_SCALING * tf.abs(differences[:,3])))
         tf.summary.scalar("voltage_loss", tf.reduce_mean(VOLTAGE_SCALING * tf.abs(differences[:,4])))
