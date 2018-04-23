@@ -59,3 +59,12 @@ if __name__ == "__main__":
         
         print("Loss from with no model:", np.sum(np.square(loss_base)))
         print("Loss from learned model:", np.sum(np.square(loss)))
+
+    state_batch = np.zeros((BATCH_SIZE, STATE_STEPS, STATES))
+    control_batch = np.zeros((BATCH_SIZE, STATE_STEPS, CONTROLS))
+    control_check_batch = np.zeros((BATCH_SIZE, CHECK_STEPS, CONTROLS))
+
+    for i in range(100):
+        print(state_batch[0])
+        x, state_batch, control_batch = m.compute_f(0, state_batch, control_batch, control_check_batch)
+
