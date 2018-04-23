@@ -10,7 +10,7 @@ TENSORFLOW_GRAPH = "model.ckpt"
 class TestDriftModel:
 
     def __init__(self):
-        h = 0.033333778381347656
+        h = 0.008333444595336914
         training = False
         reuse = False
         self.state_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, STATE_STEPS, 5), name="state_batch")
@@ -22,7 +22,7 @@ class TestDriftModel:
             origin_batch = normalize_batch(origin_batch, self.state_batch_ph[:, -1])
             state_batch = normalize_batch(self.state_batch_ph, self.state_batch_ph[:, -1])
 
-            prediction = state_batch[:,-1] + (state_batch[:,-1] - state_batch[:,-2] + h * f(state_batch, self.control_batch_ph, training, reuse))
+            prediction = state_batch[:,-1] + h * f(state_batch, self.control_batch_ph, training, reuse)
             prediction = tf.expand_dims(prediction,axis=1)
 
             # Unnormalize the prediction
@@ -58,6 +58,7 @@ if __name__ == "__main__":
         # Use the learned model
         for i in range(len(state_check_batch)):
             prediction = m.compute_f(state_batch, control_batch)
+            print(i,prediction[0])
             state_batch = np.concatenate((state_batch[:,1:], np.expand_dims(prediction,axis=1)),axis=1)
             control_batch = np.concatenate((control_batch[:,1:], np.expand_dims(control_check_batch[:,i], axis=1)),axis=1)
 

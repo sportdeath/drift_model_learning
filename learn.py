@@ -10,15 +10,15 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/medium_net/"
+LOG_DIR = "tmp/drifter/medium_net3/"
 
 """
 The number of units and the 
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [800, 800, 5]
-ACTIVATIONS = [tf.nn.relu, tf.nn.relu, None]
+LAYER_UNITS = [800, 5]
+ACTIVATIONS = [tf.nn.relu, None]
 
 """
 The integer factor to downsample
@@ -35,7 +35,7 @@ DROPOUT = 0.7
 """
 The number of states to check
 """
-STATE_STEPS = 10
+STATE_STEPS = 20
 
 """
 The number of future states to verify.
@@ -87,9 +87,6 @@ def read_bag_csv_file(file_path):
             data.append(row)
 
         data = np.array(data, dtype=np.float64)
-
-        # Downsample the data
-        data = data[::DOWNSAMPLE]
 
         # Extract t, state, control
         t = data[:, 0]
@@ -169,10 +166,10 @@ def random_batch(state_chunks, control_chunks, p_chunks):
     control_check_batch = []
 
     for chunk_choice in chunk_choices:
-        start_choice = np.random.randint(len(state_chunks[chunk_choice]) - STATE_STEPS - CHECK_STEPS + 1)
+        start_choice = np.random.randint(len(state_chunks[chunk_choice]) - DOWNSAMPLE * (STATE_STEPS + CHECK_STEPS) + 1)
 
-        state_batch.append(state_chunks[chunk_choice][start_choice:start_choice+STATE_STEPS + CHECK_STEPS])
-        control_batch.append(control_chunks[chunk_choice][start_choice:start_choice+STATE_STEPS + CHECK_STEPS])
+        state_batch.append(state_chunks[chunk_choice][start_choice:start_choice+DOWNSAMPLE * (STATE_STEPS + CHECK_STEPS):DOWNSAMPLE])
+        control_batch.append(control_chunks[chunk_choice][start_choice:start_choice+DOWNSAMPLE * (STATE_STEPS + CHECK_STEPS):DOWNSAMPLE])
 
     state_batch = np.array(state_batch)
     control_batch = np.array(control_batch)
@@ -304,7 +301,7 @@ def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control
             origin_batch = normalize_batch(origin_batch, state_batch[:, -1])
             state_batch = normalize_batch(state_batch, state_batch[:, -1])
 
-            prediction = state_batch[:,-1] + (state_batch[:,-1] - state_batch[:,-2] + h * f(state_batch, control_batch, training, reuse))
+            prediction = state_batch[:,-1] + h * f(state_batch, control_batch, training, reuse)
             prediction = tf.expand_dims(prediction,axis=1)
 
             # Combine the state with the previous ones
