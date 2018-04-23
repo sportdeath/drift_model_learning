@@ -10,15 +10,15 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/medium_net3/"
+LOG_DIR = "tmp/drifter/medium_net6/"
 
 """
 The number of units and the 
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [800, 5]
-ACTIVATIONS = [tf.nn.relu, None]
+LAYER_UNITS = [800, 800, 5]
+ACTIVATIONS = [tf.nn.relu, tf.nn.relu, None]
 
 """
 The integer factor to downsample
@@ -35,12 +35,12 @@ DROPOUT = 0.7
 """
 The number of states to check
 """
-STATE_STEPS = 20
+STATE_STEPS = 5
 
 """
 The number of future states to verify.
 """
-CHECK_STEPS = 10
+CHECK_STEPS = 15
 
 """
 The number of elements in a training batch.
@@ -53,8 +53,8 @@ VOLTAGE_SCALING = 10.
 STD_DEV = 0.001
 TRAIN_DIR = "./train/"
 VALIDATION_DIR = "./validation/"
-LEARNING_RATE_START = 0.0005
-LEARNING_RATE_END = 0.00001
+LEARNING_RATE_START = 0.0004
+LEARNING_RATE_END = 0.0004
 LEARNING_RATE_END_STEPS = 1000000
 LEARNING_RATE_POWER = 0.5
 
@@ -414,7 +414,7 @@ def main():
 
             if i % 100000 == 0:
                 print("Saving...")
-                saver.save(session, LOG_DIR + "model.ckpt")
+                saver.save(session, LOG_DIR + str(i) + "/model.ckpt")
 
 if __name__ == "__main__":
     main()
