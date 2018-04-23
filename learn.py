@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004/"
+LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004_zeros/"
 
 STATES = 5
 CONTROLS = 2
@@ -49,8 +49,8 @@ DROPOUT = 0.7
 The number of elements in a training batch.
 """
 BATCH_SIZE = 10
-POSITION_SCALING = 0.1
-THETA_SCALING = 0.1
+POSITION_SCALING = 1.
+THETA_SCALING = 1.
 RPM_SCALING = 20000.
 VOLTAGE_SCALING = 10.
 STD_DEV = 0.001
@@ -238,7 +238,8 @@ def dense_net(input_, training, name="dense_net", reuse=False):
                     inputs=hidden,
                     units=num_units,
                     activation=activation,
-                    kernel_initializer=tf.random_normal_initializer(stddev=STD_DEV),
+                    # kernel_initializer=tf.random_normal_initializer(stddev=STD_DEV),
+                    kernel_initializer=tf.zeros_initializer(),
                     name="dense_" + str(i),
                     reuse=reuse)
 
