@@ -48,14 +48,14 @@ if __name__ == "__main__":
                 state_chunks, control_chunks, p_chunks)
 
         # state by simply integrating out the state differences.
-        loss_base = state_check_batch - state_batch[:,-CHECK_STEPS:]
+        loss_base = state_check_batch[:,-STATE_STEPS:] - state_batch
 
         # Use the learned model
         i = 0
         while i + 1 < CHECK_STEPS:
             i, state_batch, control_batch = m.compute_f(i, state_batch, control_batch, control_check_batch)
 
-        loss = state_check_batch - state_batch[:,-CHECK_STEPS:]
+        loss = state_check_batch[:,-STATE_STEPS:] - state_batch
         
         print("Loss from with no model:", np.sum(np.square(loss_base)))
         print("Loss from learned model:", np.sum(np.square(loss)))
