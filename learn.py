@@ -10,15 +10,28 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/medium_net6/"
+LOG_DIR = "tmp/drifter/rk2/"
+
+STATES = 5
+CONTROLS = 2
+
+"""
+The number of states to check
+"""
+STATE_STEPS = 5
+
+"""
+The number of future states to verify.
+"""
+CHECK_STEPS = 2
 
 """
 The number of units and the 
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [800, 800, 5]
-ACTIVATIONS = [tf.nn.relu, tf.nn.relu, None]
+LAYER_UNITS = [STATES * STATE_STEPS]
+ACTIVATIONS = [None]
 
 """
 The integer factor to downsample
@@ -33,19 +46,9 @@ a node is not dropped out.
 DROPOUT = 0.7
 
 """
-The number of states to check
-"""
-STATE_STEPS = 5
-
-"""
-The number of future states to verify.
-"""
-CHECK_STEPS = 15
-
-"""
 The number of elements in a training batch.
 """
-BATCH_SIZE = 10
+BATCH_SIZE = 20
 POSITION_SCALING = 0.1
 THETA_SCALING = 0.1
 RPM_SCALING = 20000.
@@ -202,6 +205,21 @@ def normalize_batch(state_batch, state, name="normalize_batch"):
             state_batch[:,:,3:5]),axis=2)
 
     return state_batch
+
+def normalize_vector_batch(vector_batch, state, name="normalize_vector_batch"):
+    c, s = tf.cos(-state[:, :, 2]), tf.sin(-state[:, :, 2])
+    R = tf.stack((
+            tf.stack((c, -s), axis=2),
+            tf.stack((s,  c), axis=2)),
+            axis=2)
+    R = tf.tile(R, (1, tf.shape(vector_batch)[1], 1, 1))
+
+    position = tf.matmul(R, tf.expand_dims(vector_batch[:,:,:2], axis=-1))
+    vector_batch = tf.concat((
+        tf.reshape(position, (BATCH_SIZE, tf.shape(position)[1], 2)),
+        tf.expand_dims(vector_batch[:,:,2], axis=2),
+        vector_batch[:,:,3:5]),axis=2)
+    return vector_batch
  
 def dense_net(input_, training, name="dense_net", reuse=False):
     """
@@ -261,11 +279,11 @@ def quadratic_lag_model(state_batch, control_batch, reuse, name="quadratic_lag_m
         state_weights = tf.get_variable(
                 name="state_weights", 
                 initializer=tf.random_normal_initializer(stddev=STD_DEV),
-                shape=(BATCH_SIZE, STATE_STEPS, 5, 5 * 3))
+                shape=(BATCH_SIZE, STATE_STEPS, STATES, 5 * 3))
         control_weights = tf.get_variable(
                 name="control_weights", 
                 initializer=tf.random_normal_initializer(stddev=STD_DEV),
-                shape=(BATCH_SIZE, STATE_STEPS, 5, 2 * 3))
+                shape=(BATCH_SIZE, STATE_STEPS, STATES, 2 * 3))
         state_batch_beta = tf.expand_dims(beta(state_batch), axis=3)
         control_batch_beta = tf.expand_dims(beta(control_batch), axis=3)
         quadratic_lag = \
@@ -277,7 +295,10 @@ def quadratic_lag_model(state_batch, control_batch, reuse, name="quadratic_lag_m
 
 def f(state_batch, control_batch, training, reuse, name="f"):
     with tf.variable_scope(name):
-        # quadratic_lag = quadratic_lag_model(state_batch, control_batch, reuse)
+        # Normalize
+        origin_batch = tf.zeros((BATCH_SIZE, 1, 3))
+        origin_batch = normalize_batch(origin_batch, state_batch[:, -1])
+        state_batch = normalize_batch(state_batch, state_batch[:, -1])
 
         input_ = tf.concat((
             tf.layers.flatten(beta(state_batch)),
@@ -285,47 +306,58 @@ def f(state_batch, control_batch, training, reuse, name="f"):
             axis=1)
 
         output_ = dense_net(input_, training=training, reuse=reuse)
+        output_ = tf.reshape(output_, (BATCH_SIZE, STATE_STEPS, STATES))
 
-    # return quadratic_lag + output_
-    # return quadratic_lag
+        # Unnormalize
+        output_ = normalize_vector_batch(output_, origin_batch)
+
     return output_
 
-def forward_euler_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False, name="forward_euler_loss"):
+def runge_kutta(i, h, state_batch, control_batch, control_check_batch, training, reuse, name="runge_kutta"):
+    print(i, reuse)
     with tf.variable_scope(name):
+        k1 = f(state_batch, control_batch, training, reuse)
 
-        origin_batch = tf.zeros((BATCH_SIZE, 1, 3))
-        for i in range(CHECK_STEPS):
-            if i > 0:
-                reuse = True
+        control_batch = tf.concat((control_batch[:,1:],tf.expand_dims(control_check_batch[:,i], axis=1)),axis=1)
+        i += 1
+        k2 = f(
+            state_batch + k1 * h,
+            control_batch,
+            training, True)
+        k3 = f(
+            state_batch + k2 * h,
+            control_batch,
+            training, True)
 
-            origin_batch = normalize_batch(origin_batch, state_batch[:, -1])
-            state_batch = normalize_batch(state_batch, state_batch[:, -1])
+        control_batch = tf.concat((control_batch[:,1:],tf.expand_dims(control_check_batch[:,i], axis=1)),axis=1)
+        i += 1
+        k4 = f(
+            state_batch + k3 * 2 * h,
+            control_batch,
+            training, True)
 
-            prediction = state_batch[:,-1] + h * f(state_batch, control_batch, training, reuse)
-            prediction = tf.expand_dims(prediction,axis=1)
+    state_batch = state_batch + (h/3.) * (k1 + 2*k2 + 2*k3 + k4)
+    return i, state_batch, control_batch
 
-            # Combine the state with the previous ones
-            state_batch = tf.concat((
-                    state_batch[:,1:],
-                    prediction),
-                    axis=1)
-            control_batch = tf.concat((
-                    control_batch[:,1:],
-                    tf.expand_dims(control_check_batch[:,i], axis=1)),
-                    axis=1)
+def compute_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False):
+    i = 0
+    loss = 0
+    check = state_batch
+    while i + 1 < CHECK_STEPS:
+        check = tf.concat((check[:,2:], state_check_batch[:,i:i+2]), axis=1)
+        if i > 0:
+            reuse = True
+        i, state_batch, control_batch = runge_kutta(i, h, state_batch, control_batch, control_check_batch, training, reuse)
+        loss = loss + tf.reduce_sum(tf.square(state_batch - check))
 
-        # Unnormalize the prediction
-        prediction_unnormalized = normalize_batch(prediction, origin_batch)
-        loss = tf.reduce_sum(tf.square(prediction_unnormalized[:,0] - state_check_batch[:,i]))
+    # Write for summaries
+    differences = state_batch - check
+    tf.summary.scalar("position_loss", tf.reduce_mean(POSITION_SCALING * tf.norm(differences[:,:,:2],axis=1)))
+    tf.summary.scalar("theta_loss", tf.reduce_mean(THETA_SCALING * tf.abs(differences[:,:,2])))
+    tf.summary.scalar("rpm_loss", tf.reduce_mean(RPM_SCALING * tf.abs(differences[:,:,3])))
+    tf.summary.scalar("voltage_loss", tf.reduce_mean(VOLTAGE_SCALING * tf.abs(differences[:,:,4])))
 
-        # Write for summaries
-        differences = prediction_unnormalized[:,0] - state_check_batch[:,-1]
-        tf.summary.scalar("position_loss", tf.reduce_mean(POSITION_SCALING * tf.norm(differences[:,:2],axis=1)))
-        tf.summary.scalar("theta_loss", tf.reduce_mean(THETA_SCALING * tf.abs(differences[:,2])))
-        tf.summary.scalar("rpm_loss", tf.reduce_mean(RPM_SCALING * tf.abs(differences[:,3])))
-        tf.summary.scalar("voltage_loss", tf.reduce_mean(VOLTAGE_SCALING * tf.abs(differences[:,4])))
-
-        return loss
+    return loss
 
 def main():
     # Read the input data
@@ -344,7 +376,7 @@ def main():
     control_check_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, CHECK_STEPS, 2), name="control_check_batch")
 
     # Compute the loss
-    loss = forward_euler_loss(h_ph, state_batch_ph, control_batch_ph, state_check_batch_ph, control_check_batch_ph, training_ph)
+    loss = compute_loss(h_ph, state_batch_ph, control_batch_ph, state_check_batch_ph, control_check_batch_ph, training_ph)
 
     tf.summary.scalar("loss", loss)
 
