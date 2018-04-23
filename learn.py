@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004_zeros/"
+LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004_sep/"
 
 STATES = 5
 CONTROLS = 2
@@ -23,14 +23,14 @@ STATE_STEPS = 5
 """
 The number of future states to verify.
 """
-CHECK_STEPS = 10
+CHECK_STEPS = 2
 
 """
 The number of units and the 
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [STATES * STATE_STEPS]
+LAYER_UNITS = [STATE_STEPS]
 ACTIVATIONS = [None]
 
 """
@@ -306,16 +306,20 @@ def f(state_batch, control_batch, training, reuse, name="f"):
             tf.layers.flatten(beta(control_batch))),
             axis=1)
 
-        output_ = dense_net(input_, training=training, reuse=reuse)
-        output_ = tf.reshape(output_, (BATCH_SIZE, STATE_STEPS, STATES))
+        x = dense_net(input_, training=training, reuse=reuse, name="x_net")
+        y = dense_net(input_, training=training, reuse=reuse, name="y_net")
+        theta = dense_net(input_, training=training, reuse=reuse, name="theta_net")
+        rpm = dense_net(input_, training=training, reuse=reuse, name="rpm_net")
+        voltage = dense_net(input_, training=training, reuse=reuse, name="v_net")
+
+        dstate = tf.stack((x, y, theta, rpm, voltage), axis=2)
 
         # Unnormalize
-        output_ = normalize_vector_batch(output_, origin_batch)
+        dstate = normalize_vector_batch(dstate, origin_batch)
 
-    return output_
+    return dstate
 
 def runge_kutta(i, h, state_batch, control_batch, control_check_batch, training, reuse, name="runge_kutta"):
-    print(i, reuse)
     with tf.variable_scope(name):
         k1 = f(state_batch, control_batch, training, reuse)
 
