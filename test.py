@@ -13,34 +13,29 @@ class TestDriftModel:
         h = 0.008333444595336914
         training = False
         reuse = False
+        self.i_ph = tf.placeholder(tf.int32, shape=(), name="i")
         self.state_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, STATE_STEPS, 5), name="state_batch")
         self.control_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, STATE_STEPS, 2), name="control_batch")
+        self.control_check_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, CHECK_STEPS, 2), name="control_check_batch")
 
-        with tf.variable_scope("forward_euler_loss"):
-            # Normalize
-            origin_batch = tf.zeros((BATCH_SIZE, 1, 3))
-            origin_batch = normalize_batch(origin_batch, self.state_batch_ph[:, -1])
-            state_batch = normalize_batch(self.state_batch_ph, self.state_batch_ph[:, -1])
-
-            prediction = state_batch[:,-1] + h * f(state_batch, self.control_batch_ph, training, reuse)
-            prediction = tf.expand_dims(prediction,axis=1)
-
-            # Unnormalize the prediction
-            prediction_unnormalized = normalize_batch(prediction, origin_batch)
-            self.prediction = prediction_unnormalized[:,0]
+        self.i, self.state_batch, self.control_batch = runge_kutta(self.i_ph, h, self.state_batch_ph, self.control_batch_ph, self.control_check_batch_ph, training, reuse)
 
         self.sess = tf.Session()
         tf.train.Saver().restore(self.sess, TENSORFLOW_GRAPH)
 
-    def compute_f(self, state_batch, control_batch):
+    def compute_f(self, i, state_batch, control_batch, control_check_batch):
 
         feed_dict = {}
+        feed_dict[self.i_ph] = i
+        feed_dict[self.control_check_batch_ph] = control_check_batch
         feed_dict[self.state_batch_ph] = state_batch
         feed_dict[self.control_batch_ph] = control_batch
         
-        prediction = self.sess.run(self.prediction, feed_dict=feed_dict)
+        i, state_batch, control_batch = self.sess.run(
+                (self.i, self.state_batch, self.control_batch),
+                feed_dict=feed_dict)
 
-        return prediction
+        return i, state_batch, control_batch
 
 if __name__ == "__main__":
     m = TestDriftModel()
@@ -53,17 +48,14 @@ if __name__ == "__main__":
                 state_chunks, control_chunks, p_chunks)
 
         # state by simply integrating out the state differences.
-        prediction_base = state_batch[:,-1] + len(state_check_batch) * (state_batch[:,-1] - state_batch[:,-2])
+        loss_base = state_check_batch - state_batch[:,-CHECK_STEPS:]
 
         # Use the learned model
-        for i in range(len(state_check_batch)):
-            prediction = m.compute_f(state_batch, control_batch)
-            print(i,prediction[0])
-            state_batch = np.concatenate((state_batch[:,1:], np.expand_dims(prediction,axis=1)),axis=1)
-            control_batch = np.concatenate((control_batch[:,1:], np.expand_dims(control_check_batch[:,i], axis=1)),axis=1)
+        i = 0
+        while i + 1 < CHECK_STEPS:
+            i, state_batch, control_batch = m.compute_f(i, state_batch, control_batch, control_check_batch)
 
-        loss_base = state_check_batch[:,-1] - prediction_base
-        loss = state_check_batch[:,-1] - prediction
+        loss = state_check_batch - state_batch[:,-CHECK_STEPS:]
         
-        print("Loss from velocity integration:", np.sum(np.square(loss_base)))
+        print("Loss from with no model:", np.sum(np.square(loss_base)))
         print("Loss from learned model:", np.sum(np.square(loss)))
