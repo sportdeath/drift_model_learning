@@ -75,7 +75,7 @@ def read_chunks(directory):
             control_chunks.append(control)
 
     p_chunks = np.array([len(chunk) for chunk in state_chunks])
-    p_chunks = p_chunks/np.sum(p_chunks)
+    p_chunks = p_chunks/float(np.sum(p_chunks))
 
     return t_chunks, state_chunks, control_chunks, p_chunks
 
