@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk2/"
+LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004/"
 
 STATES = 5
 CONTROLS = 2
@@ -23,7 +23,7 @@ STATE_STEPS = 5
 """
 The number of future states to verify.
 """
-CHECK_STEPS = 2
+CHECK_STEPS = 10
 
 """
 The number of units and the 
@@ -48,7 +48,7 @@ DROPOUT = 0.7
 """
 The number of elements in a training batch.
 """
-BATCH_SIZE = 20
+BATCH_SIZE = 10
 POSITION_SCALING = 0.1
 THETA_SCALING = 0.1
 RPM_SCALING = 20000.
@@ -59,7 +59,7 @@ VALIDATION_DIR = "./validation/"
 LEARNING_RATE_START = 0.0004
 LEARNING_RATE_END = 0.0004
 LEARNING_RATE_END_STEPS = 1000000
-LEARNING_RATE_POWER = 0.5
+LEARNING_RATE_POWER = 2.
 
 def read_chunks(directory):
     t_chunks = []
