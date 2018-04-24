@@ -18,7 +18,7 @@ class TestDriftModel:
         self.control_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, STATE_STEPS, 2), name="control_batch")
         self.control_check_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, CHECK_STEPS, 2), name="control_check_batch")
 
-        self.i, self.state_batch, self.control_batch = runge_kutta(self.i_ph, h, self.state_batch_ph, self.control_batch_ph, self.control_check_batch_ph, training, reuse)
+        self.i, self.state_batch, self.control_batch, k1 = runge_kutta(self.i_ph, h, self.state_batch_ph, self.control_batch_ph, self.control_check_batch_ph, training, reuse)
 
         self.sess = tf.Session()
         tf.train.Saver().restore(self.sess, TENSORFLOW_GRAPH)
@@ -63,6 +63,7 @@ if __name__ == "__main__":
         print("Loss from learned model:", np.sum(np.square(loss)))
 
     state_batch = np.zeros((BATCH_SIZE, STATE_STEPS, STATES))
+    state_batch[:,:,4] = 8./float(VOLTAGE_SCALING)
     control_batch = np.zeros((BATCH_SIZE, STATE_STEPS, CONTROLS))
     control_batch[:,:,1] = 0.52
     control_check_batch = np.zeros((BATCH_SIZE, CHECK_STEPS, CONTROLS))

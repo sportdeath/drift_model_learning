@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk4mul_300_b10_st30_ck2_lr0004_sep_dev0001_velapprox/"
+LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck2_lr0004_sep_dev0001_velapprox_stab4/"
 
 STATES = 5
 CONTROLS = 2
@@ -18,7 +18,7 @@ CONTROLS = 2
 """
 The number of states to check
 """
-STATE_STEPS = 30
+STATE_STEPS = 5
 
 """
 The number of future states to verify.
@@ -30,8 +30,8 @@ The number of units and the
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [300, STATE_STEPS]
-ACTIVATIONS = [tf.nn.relu, None]
+LAYER_UNITS = [STATE_STEPS]
+ACTIVATIONS = [None]
 
 """
 The integer factor to downsample
@@ -110,7 +110,7 @@ def read_bag_csv_file(file_path):
 
         # Scale
         controls[:,0] /= RPM_SCALING
-        # controls[:,1] /= THETA_SCALING
+        controls[:,1] /= THETA_SCALING
         states[:, :2] /= POSITION_SCALING
         states[:, 2] /= THETA_SCALING
         states[:, 3] /= RPM_SCALING
@@ -304,6 +304,7 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
 
         input_ = tf.concat((
             tf.layers.flatten(beta(state_batch)),
+            # ),
                 # tf.concat((
                 # state_batch,
                 # state_batch[:,1:] - state_batch[:,:-1],
@@ -324,6 +325,11 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         voltage = dense_net(input_, training=training, reuse=reuse, name="v_net")
 
         dstate = tf.stack((x, y, theta, rpm, voltage), axis=2)
+
+        # TODO
+        # DAMP THE SYSTEM
+        # If input = velocity
+        # Velocity cannot increase past that term
 
         velocity_start = (state_batch[:,1,:3] - state_batch[:,0,:3])/h
         velocity_middle = (state_batch[:,2:,:3] - state_batch[:,:-2,:3])/(2. * h)
@@ -362,7 +368,7 @@ def runge_kutta(i, h, state_batch, control_batch, control_check_batch, training,
             training, True)
 
     state_batch = state_batch + (h/3.) * (k1 + 2*k2 + 2*k3 + k4)
-    return i, state_batch, control_batch
+    return i, state_batch, control_batch, k1
 
 def compute_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False):
     i = 0
@@ -372,8 +378,30 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
         check = tf.concat((check[:,2:], state_check_batch[:,i:i+2]), axis=1)
         if i > 0:
             reuse = True
-        i, state_batch, control_batch = runge_kutta(i, h, state_batch, control_batch, control_check_batch, training, reuse)
+        i, state_batch, control_batch, k1 = runge_kutta(i, h, state_batch, control_batch, control_check_batch, training, reuse)
         loss = loss + tf.reduce_sum(tf.square(state_batch - check))
+
+        # If the control is zero
+        # 
+        # Make sure the system is decelerating
+        # If k1 > 0
+        #     k1 > f >= 0
+        # If k1 < 0
+        #     k1 < f <= 0
+
+        MULTIPLIER = 0.1
+        RPM_EPSILON = 0.001
+        VEL_EPSILON = 0.001
+        with tf.variable_scope("runge_kutta"):
+            next_vel = f(h, state_batch, control_batch, training, True)
+        print(next_vel)
+        print(state_batch[:,:,3])
+        stability_loss = \
+                MULTIPLIER *\
+                tf.tile(tf.expand_dims(tf.maximum(RPM_EPSILON + tf.abs(state_batch[:,:,3]) - tf.abs(control_batch[:,:,0]), 0), axis=2), (1, 1, STATES)) *\
+                tf.maximum(VEL_EPSILON + tf.abs(next_vel) - tf.abs(k1), 0)
+        loss = loss + tf.reduce_sum(stability_loss)
+        tf.summary.scalar("stability_loss", tf.reduce_sum(stability_loss))
 
     # Write for summaries
     differences = state_batch - check
@@ -469,7 +497,7 @@ def main():
                 baseline_writer.add_summary(baseline_summary, i)
                 print(i)
 
-            if i % 100000 == 0:
+            if i % 10000 == 0:
                 print("Saving...")
                 saver.save(session, LOG_DIR + str(i) + "/model.ckpt")
 
