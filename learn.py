@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004_sep_dev0001_rel5/"
+LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004_sep_dev0001_rel13/"
 
 STATES = 5
 CONTROLS = 2
@@ -18,7 +18,7 @@ CONTROLS = 2
 """
 The number of states to check
 """
-STATE_STEPS = 5
+STATE_STEPS = 40
 
 """
 The number of future states to verify.
@@ -30,14 +30,14 @@ The number of units and the
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [STATE_STEPS]
-ACTIVATIONS = [None]
+LAYER_UNITS = [500, STATE_STEPS]
+ACTIVATIONS = [tf.nn.relu, None]
 
 """
 The integer factor to downsample
 the data. Default rate is 120hz
 """
-DOWNSAMPLE = 4
+DOWNSAMPLE = 1
 
 """
 Percentage of the time that
@@ -53,12 +53,12 @@ POSITION_SCALING = 1.
 THETA_SCALING = 1.
 RPM_SCALING = 20000.
 VOLTAGE_SCALING = 10.
-STD_DEV = 0.0001
+STD_DEV = 0.001
 TRAIN_DIR = "./train/"
 VALIDATION_DIR = "./validation/"
 LEARNING_RATE_START = 0.0004
-LEARNING_RATE_END = 0.0001
-LEARNING_RATE_END_STEPS = 200000
+LEARNING_RATE_END = 0.00001
+LEARNING_RATE_END_STEPS = 300000
 LEARNING_RATE_POWER = 1.
 
 def read_chunks(directory):
@@ -124,6 +124,28 @@ def plot_time(t):
     plt.figure()
     plt.title('Time')
     plt.plot(s, t)
+    plt.show()
+
+def plot_state_prediction(states, prediction, actual):
+
+    # Plot the original state and the state checks in black
+
+    # Plot each subsequent state in a different color
+    import matplotlib.pyplot as plt
+
+    while len(states.shape) > 2:
+        states = states[0]
+
+    x = states[:, 0]
+    y = states[:, 1]
+    u = np.cos(states[:, 2])
+    v = np.sin(states[:, 2])
+
+    plt.figure()
+    plt.title('State poses')
+    plt.quiver(x, y, u, v, scale=20., headwidth=3., width=0.002)
+    plt.ylim((-bounding_box, bounding_box))
+    plt.xlim((-bounding_box, bounding_box))
     plt.show()
 
 def plot_state_poses(states, bounding_box=1.):
@@ -252,19 +274,19 @@ def dense_net(input_, training, name="dense_net", reuse=False):
                     tf.summary.histogram("dense_" + str(i) + "_biases", bias)
 
             if i < len(LAYER_UNITS) - 1:
-                # Batch renorm
-                # https://arxiv.org/pdf/1702.03275.pdf
-                hidden = tf.layers.batch_normalization(
-                        hidden, 
-                        training=training, 
-                        name="bn_" + str(i), 
-                        renorm=True,
-                        fused=True,
-                        reuse=reuse)
+                # # Batch renorm
+                # # https://arxiv.org/pdf/1702.03275.pdf
+                # hidden = tf.layers.batch_normalization(
+                        # hidden, 
+                        # training=training, 
+                        # name="bn_" + str(i), 
+                        # renorm=True,
+                        # fused=True,
+                        # reuse=reuse)
 
                 # Dropout only if training
-                # dropout = tf.where(training, DROPOUT, 1)
-                # hidden = tf.nn.dropout(hidden, dropout)
+                dropout = tf.where(training, DROPOUT, 1)
+                hidden = tf.nn.dropout(hidden, dropout)
 
     return hidden
 
@@ -410,11 +432,14 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
 
     # Write for summaries
     differences = state_batch - check
-    # differences = relative_error
     tf.summary.scalar("position_loss", tf.reduce_mean(POSITION_SCALING * tf.norm(differences[:,:,:2],axis=1)))
     tf.summary.scalar("theta_loss", tf.reduce_mean(THETA_SCALING * tf.abs(differences[:,:,2])))
     tf.summary.scalar("rpm_loss", tf.reduce_mean(RPM_SCALING * tf.abs(differences[:,:,3])))
     tf.summary.scalar("voltage_loss", tf.reduce_mean(VOLTAGE_SCALING * tf.abs(differences[:,:,4])))
+    tf.summary.scalar("position_loss_rel", tf.reduce_mean(tf.norm(relative_error[:,:,:2],axis=1)))
+    tf.summary.scalar("theta_loss_rel", tf.reduce_mean(tf.abs(relative_error[:,:,2])))
+    tf.summary.scalar("rpm_loss_rel", tf.reduce_mean(tf.abs(relative_error[:,:,3])))
+    tf.summary.scalar("voltage_loss_rel", tf.reduce_mean(tf.abs(relative_error[:,:,4])))
 
     return loss
 
