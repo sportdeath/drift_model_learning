@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck2_lr0004_sep_dev0001_velapprox_stab4/"
+LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004_sep_dev0001_rel5/"
 
 STATES = 5
 CONTROLS = 2
@@ -303,14 +303,16 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         state_batch = normalize_batch(state_batch, state_batch[:, -1])
 
         input_ = tf.concat((
-            tf.layers.flatten(beta(state_batch)),
+            # tf.layers.flatten(beta(state_batch)),
+            tf.layers.flatten(state_batch),
             # ),
                 # tf.concat((
                 # state_batch,
                 # state_batch[:,1:] - state_batch[:,:-1],
                 # state_batch[:,2:] - state_batch[:,:-2]
                 # ), axis=1))),
-            tf.layers.flatten(beta(control_batch))),
+            tf.layers.flatten(control_batch)),
+            # tf.layers.flatten(beta(control_batch))),
                 # tf.concat((
                 # state_batch,
                 # state_batch[:,1:] - state_batch[:,:-1],
@@ -331,14 +333,14 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         # If input = velocity
         # Velocity cannot increase past that term
 
-        velocity_start = (state_batch[:,1,:3] - state_batch[:,0,:3])/h
-        velocity_middle = (state_batch[:,2:,:3] - state_batch[:,:-2,:3])/(2. * h)
-        velocity_end = (state_batch[:,-1,:3] - state_batch[:,-2,:3])/h
-        dstate = dstate + tf.concat((tf.concat((
-                tf.expand_dims(velocity_start, axis=1),
-                velocity_middle,
-                tf.expand_dims(velocity_end, axis=1)), axis=1),
-                tf.zeros((BATCH_SIZE, STATE_STEPS, 2))), axis=2)
+        # velocity_start = (state_batch[:,1,:3] - state_batch[:,0,:3])/h
+        # velocity_middle = (state_batch[:,2:,:3] - state_batch[:,:-2,:3])/(2. * h)
+        # velocity_end = (state_batch[:,-1,:3] - state_batch[:,-2,:3])/h
+        # dstate = dstate + tf.concat((tf.concat((
+                # tf.expand_dims(velocity_start, axis=1),
+                # velocity_middle,
+                # tf.expand_dims(velocity_end, axis=1)), axis=1),
+                # tf.zeros((BATCH_SIZE, STATE_STEPS, 2))), axis=2)
 
         # Unnormalize
         dstate = normalize_vector_batch(dstate, origin_batch)
@@ -375,11 +377,14 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     loss = 0
     check = state_batch
     while i + 1 < CHECK_STEPS:
+        last_check = check
         check = tf.concat((check[:,2:], state_check_batch[:,i:i+2]), axis=1)
         if i > 0:
             reuse = True
         i, state_batch, control_batch, k1 = runge_kutta(i, h, state_batch, control_batch, control_check_batch, training, reuse)
-        loss = loss + tf.reduce_sum(tf.square(state_batch - check))
+        relative_error = (state_batch - check)/(tf.abs(check - last_check) + 0.0001)
+        loss = loss + tf.reduce_sum(tf.square(relative_error))
+        # loss = loss + tf.reduce_sum(tf.square(state_batch - check))
 
         # If the control is zero
         # 
@@ -389,22 +394,23 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
         # If k1 < 0
         #     k1 < f <= 0
 
-        MULTIPLIER = 0.1
-        RPM_EPSILON = 0.001
-        VEL_EPSILON = 0.001
-        with tf.variable_scope("runge_kutta"):
-            next_vel = f(h, state_batch, control_batch, training, True)
-        print(next_vel)
-        print(state_batch[:,:,3])
-        stability_loss = \
-                MULTIPLIER *\
-                tf.tile(tf.expand_dims(tf.maximum(RPM_EPSILON + tf.abs(state_batch[:,:,3]) - tf.abs(control_batch[:,:,0]), 0), axis=2), (1, 1, STATES)) *\
-                tf.maximum(VEL_EPSILON + tf.abs(next_vel) - tf.abs(k1), 0)
-        loss = loss + tf.reduce_sum(stability_loss)
-        tf.summary.scalar("stability_loss", tf.reduce_sum(stability_loss))
+        # MULTIPLIER = 1.
+        # RPM_EPSILON = 0.001
+        # VEL_EPSILON = 0.001
+        # with tf.variable_scope("runge_kutta"):
+            # next_vel = f(h, state_batch, control_batch, training, True)
+        # print(next_vel)
+        # print(state_batch[:,:,3])
+        # stability_loss = \
+                # MULTIPLIER *\
+                # tf.tile(tf.expand_dims(tf.maximum(RPM_EPSILON + tf.abs(state_batch[:,:,3]) - tf.abs(control_batch[:,:,0]), 0), axis=2), (1, 1, STATES)) *\
+                # tf.maximum(VEL_EPSILON + tf.abs(next_vel) - tf.abs(k1), 0)
+        # loss = loss + tf.reduce_sum(stability_loss)
+        # tf.summary.scalar("stability_loss", tf.reduce_sum(stability_loss))
 
     # Write for summaries
     differences = state_batch - check
+    # differences = relative_error
     tf.summary.scalar("position_loss", tf.reduce_mean(POSITION_SCALING * tf.norm(differences[:,:,:2],axis=1)))
     tf.summary.scalar("theta_loss", tf.reduce_mean(THETA_SCALING * tf.abs(differences[:,:,2])))
     tf.summary.scalar("rpm_loss", tf.reduce_mean(RPM_SCALING * tf.abs(differences[:,:,3])))
