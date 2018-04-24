@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk4mul_800_b10_st5_ck10_lr0004_sep/"
+LOG_DIR = "tmp/drifter/rk4mul_300_b10_st30_ck2_lr0004_sep_dev0001_velapprox/"
 
 STATES = 5
 CONTROLS = 2
@@ -18,7 +18,7 @@ CONTROLS = 2
 """
 The number of states to check
 """
-STATE_STEPS = 5
+STATE_STEPS = 30
 
 """
 The number of future states to verify.
@@ -53,13 +53,13 @@ POSITION_SCALING = 1.
 THETA_SCALING = 1.
 RPM_SCALING = 20000.
 VOLTAGE_SCALING = 10.
-STD_DEV = 0.00001
+STD_DEV = 0.0001
 TRAIN_DIR = "./train/"
 VALIDATION_DIR = "./validation/"
 LEARNING_RATE_START = 0.0004
-LEARNING_RATE_END = 0.0004
-LEARNING_RATE_END_STEPS = 1000000
-LEARNING_RATE_POWER = 2.
+LEARNING_RATE_END = 0.0001
+LEARNING_RATE_END_STEPS = 200000
+LEARNING_RATE_POWER = 1.
 
 def read_chunks(directory):
     t_chunks = []
@@ -294,7 +294,7 @@ def quadratic_lag_model(state_batch, control_batch, reuse, name="quadratic_lag_m
 
     return quadratic_lag
 
-def f(state_batch, control_batch, training, reuse, name="f"):
+def f(h, state_batch, control_batch, training, reuse, name="f"):
     with tf.variable_scope(name):
         # Normalize
         origin_batch = tf.zeros((BATCH_SIZE, 1, 3))
@@ -303,7 +303,17 @@ def f(state_batch, control_batch, training, reuse, name="f"):
 
         input_ = tf.concat((
             tf.layers.flatten(beta(state_batch)),
+                # tf.concat((
+                # state_batch,
+                # state_batch[:,1:] - state_batch[:,:-1],
+                # state_batch[:,2:] - state_batch[:,:-2]
+                # ), axis=1))),
             tf.layers.flatten(beta(control_batch))),
+                # tf.concat((
+                # state_batch,
+                # state_batch[:,1:] - state_batch[:,:-1],
+                # state_batch[:,2:] - state_batch[:,:-2]
+                # ), axis=1)))),
             axis=1)
 
         x = dense_net(input_, training=training, reuse=reuse, name="x_net")
@@ -314,6 +324,15 @@ def f(state_batch, control_batch, training, reuse, name="f"):
 
         dstate = tf.stack((x, y, theta, rpm, voltage), axis=2)
 
+        velocity_start = (state_batch[:,1,:3] - state_batch[:,0,:3])/h
+        velocity_middle = (state_batch[:,2:,:3] - state_batch[:,:-2,:3])/(2. * h)
+        velocity_end = (state_batch[:,-1,:3] - state_batch[:,-2,:3])/h
+        dstate = dstate + tf.concat((tf.concat((
+                tf.expand_dims(velocity_start, axis=1),
+                velocity_middle,
+                tf.expand_dims(velocity_end, axis=1)), axis=1),
+                tf.zeros((BATCH_SIZE, STATE_STEPS, 2))), axis=2)
+
         # Unnormalize
         dstate = normalize_vector_batch(dstate, origin_batch)
 
@@ -321,22 +340,22 @@ def f(state_batch, control_batch, training, reuse, name="f"):
 
 def runge_kutta(i, h, state_batch, control_batch, control_check_batch, training, reuse, name="runge_kutta"):
     with tf.variable_scope(name):
-        k1 = f(state_batch, control_batch, training, reuse)
+        k1 = f(h, state_batch, control_batch, training, reuse)
 
         control_batch = tf.concat((control_batch[:,1:],tf.expand_dims(control_check_batch[:,i], axis=1)),axis=1)
         i += 1
-        k2 = f(
+        k2 = f(h,
             state_batch + k1 * h,
             control_batch,
             training, True)
-        k3 = f(
+        k3 = f(h,
             state_batch + k2 * h,
             control_batch,
             training, True)
 
         control_batch = tf.concat((control_batch[:,1:],tf.expand_dims(control_check_batch[:,i], axis=1)),axis=1)
         i += 1
-        k4 = f(
+        k4 = f(h,
             state_batch + k3 * 2 * h,
             control_batch,
             training, True)
@@ -429,7 +448,7 @@ def main():
             if i % 100 == 0:
                 train_summary = session.run(summary, feed_dict=feed_dict)
 
-                feed_dict[h_ph] = 0
+                feed_dict[h_ph] = 0.000000001
                 feed_dict[training_ph] = False
                 baseline_summary = session.run(summary, feed_dict=feed_dict)
 
