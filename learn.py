@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk4mul_300_b10_st5_ck2_lr00001_sep_dev0001/"
+LOG_DIR = "tmp/drifter/rk4mul_800_b10_st5_ck10_lr0004_sep/"
 
 STATES = 5
 CONTROLS = 2
@@ -53,12 +53,12 @@ POSITION_SCALING = 1.
 THETA_SCALING = 1.
 RPM_SCALING = 20000.
 VOLTAGE_SCALING = 10.
-STD_DEV = 0.0001
+STD_DEV = 0.00001
 TRAIN_DIR = "./train/"
 VALIDATION_DIR = "./validation/"
 LEARNING_RATE_START = 0.0004
-LEARNING_RATE_END = 0.00001
-LEARNING_RATE_END_STEPS = 200000
+LEARNING_RATE_END = 0.0004
+LEARNING_RATE_END_STEPS = 1000000
 LEARNING_RATE_POWER = 2.
 
 def read_chunks(directory):
