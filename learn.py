@@ -10,7 +10,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004_sep/"
+LOG_DIR = "tmp/drifter/rk4mul_300_b10_st5_ck2_lr00001_sep_dev0001/"
 
 STATES = 5
 CONTROLS = 2
@@ -30,8 +30,8 @@ The number of units and the
 activation function used at the
 output of each layer of the network
 """
-LAYER_UNITS = [STATE_STEPS]
-ACTIVATIONS = [None]
+LAYER_UNITS = [300, STATE_STEPS]
+ACTIVATIONS = [tf.nn.relu, None]
 
 """
 The integer factor to downsample
@@ -53,12 +53,12 @@ POSITION_SCALING = 1.
 THETA_SCALING = 1.
 RPM_SCALING = 20000.
 VOLTAGE_SCALING = 10.
-STD_DEV = 0.001
+STD_DEV = 0.0001
 TRAIN_DIR = "./train/"
 VALIDATION_DIR = "./validation/"
 LEARNING_RATE_START = 0.0004
-LEARNING_RATE_END = 0.0004
-LEARNING_RATE_END_STEPS = 1000000
+LEARNING_RATE_END = 0.00001
+LEARNING_RATE_END_STEPS = 200000
 LEARNING_RATE_POWER = 2.
 
 def read_chunks(directory):
@@ -238,8 +238,8 @@ def dense_net(input_, training, name="dense_net", reuse=False):
                     inputs=hidden,
                     units=num_units,
                     activation=activation,
-                    # kernel_initializer=tf.random_normal_initializer(stddev=STD_DEV),
-                    kernel_initializer=tf.zeros_initializer(),
+                    kernel_initializer=tf.random_normal_initializer(stddev=STD_DEV),
+                    # kernel_initializer=tf.zeros_initializer(),
                     name="dense_" + str(i),
                     reuse=reuse)
 
@@ -262,8 +262,8 @@ def dense_net(input_, training, name="dense_net", reuse=False):
                         reuse=reuse)
 
                 # Dropout only if training
-                dropout = tf.where(training, DROPOUT, 1)
-                hidden = tf.nn.dropout(hidden, dropout)
+                # dropout = tf.where(training, DROPOUT, 1)
+                # hidden = tf.nn.dropout(hidden, dropout)
 
     return hidden
 
