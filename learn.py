@@ -110,6 +110,7 @@ def read_bag_csv_file(file_path):
 
         # Scale
         controls[:,0] /= RPM_SCALING
+        # controls[:,1] /= THETA_SCALING
         states[:, :2] /= POSITION_SCALING
         states[:, 2] /= THETA_SCALING
         states[:, 3] /= RPM_SCALING
