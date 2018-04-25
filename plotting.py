@@ -34,12 +34,12 @@ def plot_states(states, bounding_box=None):
 
     plt.figure()
     plt.title('States')
-    plt.axes().set_aspect('equal')
+    plt.axes().set_aspect('equal', 'datalim')
     if bounding_box is not None:
         plt.ylim((-bounding_box, bounding_box))
         plt.xlim((-bounding_box, bounding_box))
 
-    colors = cycle(('xkcd:black', 'xkcd:blue', 'xkcd:red', 'xkcd:violet', 'xkcd:green', 'xkcd:goldenrod'))
+    colors = cycle(('xkcd:black', 'xkcd:red', 'xkcd:green', 'xkcd:violet', 'xkcd:blue', 'xkcd:goldenrod'))
 
     for state_batch in states:
         x = state_batch[0,:,params.X_IND]
@@ -47,7 +47,7 @@ def plot_states(states, bounding_box=None):
         u = np.cos(state_batch[0,:,params.THETA_IND])
         v = np.sin(state_batch[0,:,params.THETA_IND])
 
-        plt.quiver(x, y, u, v, scale=40., headwidth=3., width=0.002, color=next(colors))
+        plt.quiver(x, y, u, v, scale=None, headwidth=3., width=0.002, color=next(colors))
 
     plt.show()
 
