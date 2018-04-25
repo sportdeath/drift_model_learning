@@ -1,434 +1,170 @@
 #!/usr/bin/env python3
 
-"""
-Train a neural network to learn
-drift
-"""
-
-import os
-import csv
 import numpy as np
 import tensorflow as tf
 
-LOG_DIR = "tmp/drifter/rk4mul_lin_b10_st5_ck10_lr0004_sep_dev0001_rel13/"
+import process_data
+import params
 
-STATES = 5
-CONTROLS = 2
-
-"""
-The number of states to check
-"""
-STATE_STEPS = 40
-
-"""
-The number of future states to verify.
-"""
-CHECK_STEPS = 2
-
-"""
-The number of units and the 
-activation function used at the
-output of each layer of the network
-"""
-LAYER_UNITS = [500, STATE_STEPS]
-ACTIVATIONS = [tf.nn.relu, None]
-
-"""
-The integer factor to downsample
-the data. Default rate is 120hz
-"""
-DOWNSAMPLE = 1
-
-"""
-Percentage of the time that
-a node is not dropped out.
-"""
-DROPOUT = 0.7
-
-"""
-The number of elements in a training batch.
-"""
-BATCH_SIZE = 10
-POSITION_SCALING = 1.
-THETA_SCALING = 1.
-RPM_SCALING = 20000.
-VOLTAGE_SCALING = 10.
-STD_DEV = 0.001
-TRAIN_DIR = "./train/"
-VALIDATION_DIR = "./validation/"
-LEARNING_RATE_START = 0.0004
-LEARNING_RATE_END = 0.00001
-LEARNING_RATE_END_STEPS = 300000
-LEARNING_RATE_POWER = 1.
-
-def read_chunks(directory):
-    t_chunks = []
-    state_chunks = []
-    control_chunks = []
-    for filename in os.listdir(directory):
-        if filename.endswith(".bag.csv"):
-            f = os.path.join(directory, filename)
-            t, state, control = read_bag_csv_file(f)
-
-            t_chunks.append(t)
-            state_chunks.append(state)
-            control_chunks.append(control)
-
-    p_chunks = np.array([len(chunk) for chunk in state_chunks])
-    p_chunks = p_chunks/float(np.sum(p_chunks))
-
-    return t_chunks, state_chunks, control_chunks, p_chunks
-
-def read_bag_csv_file(file_path):
-    with open(file_path, 'r') as bag_file:
-        reader = csv.reader(bag_file)
-
-        data = []
-        for row in reader:
-            if row[0][0] == '#':
-                continue
-            data.append(row)
-
-        data = np.array(data, dtype=np.float64)
-
-        # Extract t, state, control
-        t = data[:, 0]
-        t -= t[0]
-        controls = data[:, 1:3]
-        states = data[:, 3:8]
-
-        # Reorder the observed states to be
-        # (x, y, theta, omega, V)
-        states = states[:,[2, 3, 4, 0, 1]]
-
-        # Change theta = 0 to point in
-        # the positive x direction
-        states[:, 2] += np.pi/2.
-
-        # Unwrap the angles
-        states[:, 2] = np.unwrap(states[:, 2])
-
-        # Scale
-        controls[:,0] /= RPM_SCALING
-        controls[:,1] /= THETA_SCALING
-        states[:, :2] /= POSITION_SCALING
-        states[:, 2] /= THETA_SCALING
-        states[:, 3] /= RPM_SCALING
-        states[:, 4] /= VOLTAGE_SCALING
-
-    return t, states, controls
-
-def plot_time(t):
-    import matplotlib.pyplot as plt
-    s = np.arange(len(t))
-    plt.figure()
-    plt.title('Time')
-    plt.plot(s, t)
-    plt.show()
-
-def plot_state_prediction(states, prediction, actual):
-
-    # Plot the original state and the state checks in black
-
-    # Plot each subsequent state in a different color
-    import matplotlib.pyplot as plt
-
-    while len(states.shape) > 2:
-        states = states[0]
-
-    x = states[:, 0]
-    y = states[:, 1]
-    u = np.cos(states[:, 2])
-    v = np.sin(states[:, 2])
-
-    plt.figure()
-    plt.title('State poses')
-    plt.quiver(x, y, u, v, scale=20., headwidth=3., width=0.002)
-    plt.ylim((-bounding_box, bounding_box))
-    plt.xlim((-bounding_box, bounding_box))
-    plt.show()
-
-def plot_state_poses(states, bounding_box=1.):
-    """
-    Plots the poses of a state
-
-    Args:
-        states: A numpy array where the last dimension
-            is (x, y, theta, omega, V)
-    """
-    
-    import matplotlib.pyplot as plt
-
-    while len(states.shape) > 2:
-        states = states[0]
-
-    # If there are a whole bunch of states,
-    # down sample them
-    if len(states) > 200:
-        states = states[::10]
-
-    x = states[:, 0]
-    y = states[:, 1]
-    u = np.cos(states[:, 2])
-    v = np.sin(states[:, 2])
-
-    plt.figure()
-    plt.title('State poses')
-    plt.quiver(x, y, u, v, scale=20., headwidth=3., width=0.002)
-    plt.ylim((-bounding_box, bounding_box))
-    plt.xlim((-bounding_box, bounding_box))
-    plt.show()
-
-def random_batch(state_chunks, control_chunks, p_chunks):
-    # Sample which chunk
-    chunk_choices = np.random.choice(len(state_chunks), size=BATCH_SIZE, p=p_chunks)
-
-    # Sample where to start in the chunk
-    start_choices = [np.random.randint(len(state_chunks[i])) for i in chunk_choices]
-
-    state_batch = []
-    state_check_batch = []
-    control_batch = []
-    control_check_batch = []
-
-    for chunk_choice in chunk_choices:
-        start_choice = np.random.randint(len(state_chunks[chunk_choice]) - DOWNSAMPLE * (STATE_STEPS + CHECK_STEPS) + 1)
-
-        state_batch.append(state_chunks[chunk_choice][start_choice:start_choice+DOWNSAMPLE * (STATE_STEPS + CHECK_STEPS):DOWNSAMPLE])
-        control_batch.append(control_chunks[chunk_choice][start_choice:start_choice+DOWNSAMPLE * (STATE_STEPS + CHECK_STEPS):DOWNSAMPLE])
-
-    state_batch = np.array(state_batch)
-    control_batch = np.array(control_batch)
-
-    state_check_batch = state_batch[:,-CHECK_STEPS:,:]
-    control_check_batch = control_batch[:,-CHECK_STEPS:,:]
-    state_batch = state_batch[:,:STATE_STEPS,:]
-    control_batch = control_batch[:,:STATE_STEPS,:]
-
-    return state_batch, control_batch, state_check_batch, control_check_batch
-
-def normalize_batch(state_batch, state, name="normalize_batch"):
-    with tf.variable_scope(name):
-        state = tf.reshape(state[:,:3], (BATCH_SIZE, 1, 3))
-
-        # Rotate the positions by the mean theta
-        c, s = tf.cos(-state[:, :, 2]), tf.sin(-state[:, :, 2])
-        R = tf.stack((
-                tf.stack((c, -s), axis=2),
-                tf.stack((s,  c), axis=2)),
-                axis=2)
-        R = tf.tile(R, (1, tf.shape(state_batch)[1], 1, 1))
-
-        position = tf.matmul(R, tf.expand_dims(state_batch[:,:,:2] - state[:,:,:2], axis=-1))
-        theta = state_batch[:,:,2] - state[:,:,2]
-
-        state_batch = tf.concat((
-            tf.reshape(position, (BATCH_SIZE, tf.shape(position)[1], 2)),
-            tf.expand_dims(theta, axis=2),
-            state_batch[:,:,3:5]),axis=2)
-
-    return state_batch
-
-def normalize_vector_batch(vector_batch, state, name="normalize_vector_batch"):
-    c, s = tf.cos(-state[:, :, 2]), tf.sin(-state[:, :, 2])
-    R = tf.stack((
-            tf.stack((c, -s), axis=2),
-            tf.stack((s,  c), axis=2)),
-            axis=2)
-    R = tf.tile(R, (1, tf.shape(vector_batch)[1], 1, 1))
-
-    position = tf.matmul(R, tf.expand_dims(vector_batch[:,:,:2], axis=-1))
-    vector_batch = tf.concat((
-        tf.reshape(position, (BATCH_SIZE, tf.shape(position)[1], 2)),
-        tf.expand_dims(vector_batch[:,:,2], axis=2),
-        vector_batch[:,:,3:5]),axis=2)
-    return vector_batch
- 
 def dense_net(input_, training, name="dense_net", reuse=False):
     """
-    Make a dense neural net where each layer is an entry in
-    layer_units. All but the last layer includes a nonlinearity.
+    Regress the input using a fully connected neural network.
+    The network parameters are detailed in the params file.
+
+    Args:
+        input_: The input tensor to the network.
+        training: A boolean tensor that is true if the network
+            is being trained.
+        reuse: If true, the network is being reused and the
+            weights will be shared with previous copies.
+        name: The name of the operation.
+
+    Returns:
+        The output of the neural network.
     """
     hidden = input_
 
     with tf.variable_scope(name, reuse=reuse):
 
-        for i, num_units in enumerate(LAYER_UNITS):
-            activation = ACTIVATIONS[i]
-
-            # Dense connection
+        for i, num_units in enumerate(params.LAYER_UNITS):
+            # Perform the dense layer
+            layer_name = "dense_" + str(i)
             hidden = tf.layers.dense(
                     inputs=hidden,
                     units=num_units,
-                    activation=activation,
-                    kernel_initializer=tf.random_normal_initializer(stddev=STD_DEV),
-                    # kernel_initializer=tf.zeros_initializer(),
-                    name="dense_" + str(i),
+                    activation=params.ACTIVATIONS[i],
+                    kernel_initializer=params.KERNEL_INITIALIZER,
+                    name=layer_name,
                     reuse=reuse)
 
             if not reuse:
-                with tf.variable_scope("dense_"+str(i), reuse=True):
+                # Add the histograms for debugging
+                with tf.variable_scope(layer_name, reuse=True):
                     weights = tf.get_variable("kernel")
-                    tf.summary.histogram("dense_" + str(i) + "_weights", weights)
+                    tf.summary.histogram("weights", weights)
                     bias = tf.get_variable("bias")
-                    tf.summary.histogram("dense_" + str(i) + "_biases", bias)
+                    tf.summary.histogram("biases", bias)
 
-            if i < len(LAYER_UNITS) - 1:
-                # # Batch renorm
-                # # https://arxiv.org/pdf/1702.03275.pdf
-                # hidden = tf.layers.batch_normalization(
-                        # hidden, 
-                        # training=training, 
-                        # name="bn_" + str(i), 
-                        # renorm=True,
-                        # fused=True,
-                        # reuse=reuse)
+            if i + 1 < len(params.LAYER_UNITS):
+                if params.BATCH_NORM:
+                    # Batch renorm
+                    # https://arxiv.org/pdf/1702.03275.pdf
+                    hidden = tf.layers.batch_normalization(
+                            hidden, 
+                            training=training, 
+                            name="bn_" + str(i), 
+                            renorm=True,
+                            fused=True,
+                            reuse=reuse)
 
-                # Dropout only if training
-                dropout = tf.where(training, DROPOUT, 1)
-                hidden = tf.nn.dropout(hidden, dropout)
+                if params.DROPOUT:
+                    # Dropout only if training
+                    keep_prob = tf.where(training, params.KEEP_PROB, 1)
+                    hidden = tf.nn.dropout(hidden, keep_prob)
 
     return hidden
 
-def beta(x, name="beta"):
+def feature_expansion(x, name="feature_augmentation"):
+    """
+    Expands the features of a tensor by combining an
+    input tensor with functions of itself.
+
+    Args:
+        x: The input tensor.
+        name: The name of the operation.
+
+    Returns:
+        The expanded tensor.
+    """
+
     with tf.variable_scope(name):
-        return tf.concat((
+        x_expanded = tf.concat((
                 x,
-                tf.square(tf.maximum(0.,x)),
-                tf.square(tf.minimum(0.,x))),
-                axis=2)
+                tf.sin(x),
+                tf.cos(x)),
+                axis=-1)
 
-def quadratic_lag_model(state_batch, control_batch, reuse, name="quadratic_lag_model"):
-    with tf.variable_scope(name, reuse=reuse):
-        state_weights = tf.get_variable(
-                name="state_weights", 
-                initializer=tf.random_normal_initializer(stddev=STD_DEV),
-                shape=(BATCH_SIZE, STATE_STEPS, STATES, 5 * 3))
-        control_weights = tf.get_variable(
-                name="control_weights", 
-                initializer=tf.random_normal_initializer(stddev=STD_DEV),
-                shape=(BATCH_SIZE, STATE_STEPS, STATES, 2 * 3))
-        state_batch_beta = tf.expand_dims(beta(state_batch), axis=3)
-        control_batch_beta = tf.expand_dims(beta(control_batch), axis=3)
-        quadratic_lag = \
-                tf.reduce_sum(tf.matmul(state_weights, state_batch_beta), axis=1) +\
-                tf.reduce_sum(tf.matmul(control_weights, control_batch_beta), axis=1)
-        quadratic_lag = tf.squeeze(quadratic_lag)
-
-    return quadratic_lag
+        return x_expanded
 
 def f(h, state_batch, control_batch, training, reuse, name="f"):
-    with tf.variable_scope(name):
-        # Normalize
-        origin_batch = tf.zeros((BATCH_SIZE, 1, 3))
-        origin_batch = normalize_batch(origin_batch, state_batch[:, -1])
-        state_batch = normalize_batch(state_batch, state_batch[:, -1])
+    """
+    Compute the derivative at a state given its control input.
+    The function is computed using multiple neural net regressions
+    which can be trained.
 
+    Args:
+        h: The constant timestep.
+        state_batch: The states.
+        control_batch: The control inputs.
+        training: A boolean tensor that is true if the network
+            is being trained.
+        reuse: If true, the network is being reused and the
+            weights will be shared with previous copies.
+        name: The name of the operation.
+    """
+    with tf.variable_scope(name):
+        # Normalize the states around the last pose
+        state_batch_n = process_data.set_origin(state_batch, state_batch[:, -1])
+
+        # Combine the normalized states and controls
+        # into one large state.
         input_ = tf.concat((
-            # tf.layers.flatten(beta(state_batch)),
-            tf.layers.flatten(state_batch),
-            # ),
-                # tf.concat((
-                # state_batch,
-                # state_batch[:,1:] - state_batch[:,:-1],
-                # state_batch[:,2:] - state_batch[:,:-2]
-                # ), axis=1))),
+            tf.layers.flatten(state_batch_n),
             tf.layers.flatten(control_batch)),
-            # tf.layers.flatten(beta(control_batch))),
-                # tf.concat((
-                # state_batch,
-                # state_batch[:,1:] - state_batch[:,:-1],
-                # state_batch[:,2:] - state_batch[:,:-2]
-                # ), axis=1)))),
             axis=1)
 
+        # Augment the features with useful functions
+        input_ = feature_expansion(input_)
+
+        # Use a separate neural net to compute each state variable
         x = dense_net(input_, training=training, reuse=reuse, name="x_net")
         y = dense_net(input_, training=training, reuse=reuse, name="y_net")
         theta = dense_net(input_, training=training, reuse=reuse, name="theta_net")
         rpm = dense_net(input_, training=training, reuse=reuse, name="rpm_net")
         voltage = dense_net(input_, training=training, reuse=reuse, name="v_net")
 
-        dstate = tf.stack((x, y, theta, rpm, voltage), axis=2)
+        # Combine the results into one state
+        dstate_batch_n = tf.stack((x, y, theta, rpm, voltage), axis=2)
 
-        # TODO
-        # DAMP THE SYSTEM
-        # If input = velocity
-        # Velocity cannot increase past that term
+        # Un-normalize the data
+        dstate_batch = process_data.set_origin(dstate_batch_n, -state_batch[:,-1], derivative=True)
 
-        # velocity_start = (state_batch[:,1,:3] - state_batch[:,0,:3])/h
-        # velocity_middle = (state_batch[:,2:,:3] - state_batch[:,:-2,:3])/(2. * h)
-        # velocity_end = (state_batch[:,-1,:3] - state_batch[:,-2,:3])/h
-        # dstate = dstate + tf.concat((tf.concat((
-                # tf.expand_dims(velocity_start, axis=1),
-                # velocity_middle,
-                # tf.expand_dims(velocity_end, axis=1)), axis=1),
-                # tf.zeros((BATCH_SIZE, STATE_STEPS, 2))), axis=2)
+        if params.INIT_WITH_FINITE_DIFFERENCES:
+            # Use finite differences as an initial guess
+            velocity_start = (state_batch[:,1,:params.RPM_IND] - state_batch[:,0,:params.RPM_IND])/h
+            velocity_middle = (state_batch[:,2:,:params.RPM_IND] - state_batch[:,:-2,:params.RPM_IND])/(2. * h)
+            velocity_end = (state_batch[:,-1,:params.RPM_IND] - state_batch[:,-2,:params.RPM_IND])/h
+            velocity = tf.concat((tf.concat((
+                    tf.expand_dims(velocity_start, axis=1),
+                    velocity_middle,
+                    tf.expand_dims(velocity_end, axis=1)), axis=1),
+                    tf.zeros((tf.shape(dstate_batch)[0], tf.shape(dstate_batch)[1], 2))), axis=2)
 
-        # Unnormalize
-        dstate = normalize_vector_batch(dstate, origin_batch)
+            dstate_batch = dstate_batch + velocity
 
-    return dstate
-
-def runge_kutta(i, h, state_batch, control_batch, control_check_batch, training, reuse, name="runge_kutta"):
-    with tf.variable_scope(name):
-        k1 = f(h, state_batch, control_batch, training, reuse)
-
-        control_batch = tf.concat((control_batch[:,1:],tf.expand_dims(control_check_batch[:,i], axis=1)),axis=1)
-        i += 1
-        k2 = f(h,
-            state_batch + k1 * h,
-            control_batch,
-            training, True)
-        k3 = f(h,
-            state_batch + k2 * h,
-            control_batch,
-            training, True)
-
-        control_batch = tf.concat((control_batch[:,1:],tf.expand_dims(control_check_batch[:,i], axis=1)),axis=1)
-        i += 1
-        k4 = f(h,
-            state_batch + k3 * 2 * h,
-            control_batch,
-            training, True)
-
-    state_batch = state_batch + (h/3.) * (k1 + 2*k2 + 2*k3 + k4)
-    return i, state_batch, control_batch, k1
+    return dstate_batch
 
 def compute_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False):
     i = 0
     loss = 0
     check = state_batch
     while i + 1 < CHECK_STEPS:
+
+        # Step through the verifier
         last_check = check
         check = tf.concat((check[:,2:], state_check_batch[:,i:i+2]), axis=1)
+
         if i > 0:
             reuse = True
-        i, state_batch, control_batch, k1 = runge_kutta(i, h, state_batch, control_batch, control_check_batch, training, reuse)
-        relative_error = (state_batch - check)/(tf.abs(check - last_check) + 0.0001)
+
+        # Integrate
+        i, state_batch, control_batch = time_stepper.integrate(i, h, state_batch, control_batch, control_check_batch, training, reuse)
+
+        # Compute the error relative to the distance traveled
+        relative_error = (state_batch - check)/(tf.abs(check - last_check) + params.MIN_ERROR)
+
+        # Accumulate the error
         loss = loss + tf.reduce_sum(tf.square(relative_error))
-        # loss = loss + tf.reduce_sum(tf.square(state_batch - check))
-
-        # If the control is zero
-        # 
-        # Make sure the system is decelerating
-        # If k1 > 0
-        #     k1 > f >= 0
-        # If k1 < 0
-        #     k1 < f <= 0
-
-        # MULTIPLIER = 1.
-        # RPM_EPSILON = 0.001
-        # VEL_EPSILON = 0.001
-        # with tf.variable_scope("runge_kutta"):
-            # next_vel = f(h, state_batch, control_batch, training, True)
-        # print(next_vel)
-        # print(state_batch[:,:,3])
-        # stability_loss = \
-                # MULTIPLIER *\
-                # tf.tile(tf.expand_dims(tf.maximum(RPM_EPSILON + tf.abs(state_batch[:,:,3]) - tf.abs(control_batch[:,:,0]), 0), axis=2), (1, 1, STATES)) *\
-                # tf.maximum(VEL_EPSILON + tf.abs(next_vel) - tf.abs(k1), 0)
-        # loss = loss + tf.reduce_sum(stability_loss)
-        # tf.summary.scalar("stability_loss", tf.reduce_sum(stability_loss))
 
     # Write for summaries
     differences = state_batch - check
@@ -443,7 +179,7 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
 
     return loss
 
-def main():
+if __name__ == "__main__":
     # Read the input data
     t_chunks, state_chunks, control_chunks, p_chunks = read_chunks(TRAIN_DIR)
     t_chunks_val, state_chunks_val, control_chunks_val, p_chunks_val = read_chunks(VALIDATION_DIR)
@@ -461,9 +197,10 @@ def main():
 
     # Compute the loss
     loss = compute_loss(h_ph, state_batch_ph, control_batch_ph, state_check_batch_ph, control_check_batch_ph, training_ph)
-
     tf.summary.scalar("loss", loss)
 
+
+    # Initialize the learning rate
     global_step = tf.Variable(0, trainable=False)
     learning_rate = tf.train.polynomial_decay(
             LEARNING_RATE_START,
@@ -473,25 +210,25 @@ def main():
             power=LEARNING_RATE_POWER)
     tf.summary.scalar("learning_rate", learning_rate)
 
-    # Optimize
+    # Minimize the loss function
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS) # For batch norm
     with tf.control_dependencies(update_ops):
         optimizer = tf.train.AdamOptimizer(learning_rate).minimize(loss, global_step=global_step)
 
-    summary = tf.summary.merge_all()
-
     with tf.Session() as session:
+        # Initialize the session
+        summary = tf.summary.merge_all()
         session.run(tf.local_variables_initializer())
         session.run(tf.global_variables_initializer())
 
+        # Create writers for tensorboard
         train_writer = tf.summary.FileWriter(LOG_DIR + "train", session.graph)
         validation_writer = tf.summary.FileWriter(LOG_DIR + "validation")
         baseline_writer = tf.summary.FileWriter(LOG_DIR + "baseline")
-
         saver = tf.train.Saver()
 
         for i in range(2000000):
-            # Make random positive and unlabeled batches
+            # Make a random batch
             state_batch, control_batch, state_check_batch, control_check_batch = random_batch(
                     state_chunks, control_chunks, p_chunks)
 
@@ -531,6 +268,3 @@ def main():
             if i % 10000 == 0:
                 print("Saving...")
                 saver.save(session, LOG_DIR + str(i) + "/model.ckpt")
-
-if __name__ == "__main__":
-    main()

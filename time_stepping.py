@@ -97,6 +97,7 @@ if __name__ == "__main__":
             feed_dict[state_batch_ph] = states_rk[-1]
             states_rk.append(sess.run(state_batch_next_rk, feed_dict=feed_dict))
 
+    # Plot the results
     states_fe = np.concatenate(states_fe, axis=1)
     states_rk = np.concatenate(states_rk, axis=1)
     plotting.plot_states([states_fe, states_rk])

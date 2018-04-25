@@ -23,6 +23,20 @@ LAYER_UNITS = [500, STATE_STEPS]
 ACTIVATIONS = [tf.nn.relu, None]
 
 """
+The initializer in the neural network.
+"""
+KERNEL_INITIALIZER = tf.contrib.layers.xavier_initializer()
+
+"""
+"""
+INIT_WITH_FINITE_DIFFERENCES = True
+
+"""
+Should we use batch normalization?
+"""
+BATCH_NORM = False
+
+"""
 The integer factor to downsample the data.
 """
 DOWNSAMPLE = 1
@@ -30,7 +44,8 @@ DOWNSAMPLE = 1
 """
 The probability that a node is not dropped out.
 """
-DROPOUT = 0.7
+DROPOUT = False
+KEEP_PROP = 0.7
 
 """
 The number of elements in a training batch.

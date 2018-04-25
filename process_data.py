@@ -100,10 +100,11 @@ if __name__ == "__main__":
     import plotting
     import read_data
 
+    # Read the data
+    _, state_chunks, control_chunks, p_chunks = read_data.read_chunks(params.TRAIN_DIR)
+
     with tf.Session().as_default():
         for i in range(3):
-            # Read the data
-            _, state_chunks, control_chunks, p_chunks = read_data.read_chunks(params.TRAIN_DIR)
 
             # Get a random batch from the data
             state_batch, _, state_check_batch, _ = random_batch(state_chunks, control_chunks, p_chunks)
