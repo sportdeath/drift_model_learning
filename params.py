@@ -1,9 +1,10 @@
+import numpy as np
 import tensorflow as tf
 
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/first1_norm_theta/"
+LOG_DIR = "tmp/drifter2/first1_forward_l2_c10_rela_cumu/"
 
 """
 The number of input states to the neural network.
@@ -13,7 +14,7 @@ STATE_STEPS = 15
 """
 The number of future states to verify in training.
 """
-CHECK_STEPS = 2
+CHECK_STEPS = 10
 
 """
 The number of units and the activation functions
@@ -21,16 +22,20 @@ used at the output of each layer of the network.
 """
 LAYER_UNITS = [500, 1]
 ACTIVATIONS = [tf.nn.relu, None]
+# LAYER_UNITS = [1]
+# ACTIVATIONS = [None]
 
 """
 The initializer in the neural network.
 """
 INIT_STD_DEV = 0.001
+# INIT_STD_DEV = 0.1
 KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
+# KERNEL_INITIALIZER = tf.contrib.layers.xavier_initializer()
 
 """
 """
-MIN_ERROR = 0.0005
+MIN_ERROR = np.array([0.0001, 0.0001, 0.0001, 0.01, 0.01])
 
 """
 """
@@ -64,6 +69,7 @@ BATCH_SIZE = 10
 The learning rate of the neural network.
 """
 LEARNING_RATE = 0.0001
+# LEARNING_RATE = 0.1
 
 """
 The number of states in the system.

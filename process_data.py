@@ -3,6 +3,7 @@ import tensorflow as tf
 
 import params
 
+
 def random_batch(state_chunks, control_chunks, p_chunks):
     """
     Generate random batches of data from the dataset.
@@ -49,6 +50,7 @@ def random_batch(state_chunks, control_chunks, p_chunks):
     control_batch = control_batch[:,:params.STATE_STEPS,:]
 
     return state_batch, control_batch, state_check_batch, control_check_batch
+
 
 def set_origin(state_batch, origin_state, derivative=False, name="normalize_batch"):
     """

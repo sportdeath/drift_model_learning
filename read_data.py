@@ -102,4 +102,5 @@ if __name__ == "__main__":
     Test the file reading.
     """
     t, state, control, p = read_chunks(params.TRAIN_DIR)
+    np.set_printoptions(threshold=np.inf)
     print(control[0])

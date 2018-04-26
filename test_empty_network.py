@@ -22,7 +22,8 @@ if __name__ == "__main__":
     control_check_batch_ph = tf.placeholder(tf.float32, shape=(1, params.CHECK_STEPS, params.CONTROLS), name="control_check_batch")
 
     # Evaluate the next step
-    ts = time_stepping.RungeKutta(learn.f)
+    # ts = time_stepping.RungeKutta(learn.f)
+    ts = time_stepping.ForwardEuler(learn.f)
     _, next_state_batch_tf, _ = ts.integrate(0, h, state_batch_ph, control_batch_ph, control_check_batch_ph, False, False)
 
     with tf.Session() as sess:
@@ -48,9 +49,9 @@ if __name__ == "__main__":
             plotting.plot_vectors([
                 (0, state_batch[0,:,params.V_IND]), 
                 (params.STATE_STEPS, state_check_batch[0,:,params.V_IND]),
-                (2, next_state_batch[0,:,params.V_IND])], title="Voltage")
+                (1, next_state_batch[0,:,params.V_IND])], title="Voltage")
 
             plotting.plot_vectors([
                 (0, state_batch[0,:,params.RPM_IND]), 
                 (params.STATE_STEPS, state_check_batch[0,:,params.RPM_IND]),
-                (2, next_state_batch[0,:,params.RPM_IND])], title="RPM")
+                (1, next_state_batch[0,:,params.RPM_IND])], title="RPM")
