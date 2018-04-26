@@ -5,20 +5,21 @@ import matplotlib.colors
 
 import params
 
-def plot_vector(t):
+def plot_vectors(vectors, title="Vectors"):
     """
     Plot a list of values with equal spacing.
 
     Args:
         t: A list of values.
     """
-    s = np.arange(len(t))
     plt.figure()
-    plt.title('Vector')
-    plt.plot(s, t)
+    plt.title(title)
+    for start, vector in vectors:
+        s = start + np.arange(len(vector))
+        plt.plot(s, vector)
     plt.show()
 
-def plot_states(states, bounding_box=None):
+def plot_states(states, bounding_box=None, title="States"):
     """
     Plots several state arrays. Each array will be
     given a different color.
@@ -33,7 +34,7 @@ def plot_states(states, bounding_box=None):
     """
 
     plt.figure()
-    plt.title('States')
+    plt.title(title)
     plt.axes().set_aspect('equal', 'datalim')
     if bounding_box is not None:
         plt.ylim((-bounding_box, bounding_box))
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     t_chunks, state_chunks, control_chunks, p_chunks = read_data.read_chunks(params.TRAIN_DIR)
 
     # Plot the time
-    plot_vector(t_chunks[0])
+    plot_vectors([t_chunks[0]])
 
     # Plot a couple states
     states = []

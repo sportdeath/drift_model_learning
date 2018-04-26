@@ -13,7 +13,7 @@ if __name__ == "__main__":
     # Set the timestep low so we only see
     # the initialization effects
     # (it cannot be zero due to division)
-    h = 0.0000000001
+    h = 0.000000001
 
     # Make placeholders
     state_batch_ph = tf.placeholder(tf.float32, shape=(1, params.STATE_STEPS, params.STATES), name="state_batch")
@@ -35,9 +35,6 @@ if __name__ == "__main__":
             # Get a random batch from the data
             state_batch, control_batch, state_check_batch, control_check_batch = process_data.random_batch(state_chunks, control_chunks, p_chunks)
 
-            # Plot the batch and the check
-            plotting.plot_states([state_batch, state_check_batch])
-
             # Evaluate the next state and plot it
             feed_dict = {}
             feed_dict[state_batch_ph] = state_batch[:1]
@@ -46,3 +43,14 @@ if __name__ == "__main__":
             feed_dict[control_check_batch_ph] = control_check_batch[:1]
             next_state_batch = sess.run(next_state_batch_tf, feed_dict=feed_dict)
             plotting.plot_states([state_batch, state_check_batch, next_state_batch])
+
+            # Plot the velocities
+            plotting.plot_vectors([
+                (0, state_batch[0,:,params.V_IND]), 
+                (params.STATE_STEPS, state_check_batch[0,:,params.V_IND]),
+                (2, next_state_batch[0,:,params.V_IND])], title="Voltage")
+
+            plotting.plot_vectors([
+                (0, state_batch[0,:,params.RPM_IND]), 
+                (params.STATE_STEPS, state_check_batch[0,:,params.RPM_IND]),
+                (2, next_state_batch[0,:,params.RPM_IND])], title="RPM")
