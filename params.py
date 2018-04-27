@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/no_voltage_rk_min_error0001/"
+LOG_DIR = "tmp/drifter2/no_voltage_rk_batch100/"
 
 """
 The number of input states to the neural network.
@@ -35,7 +35,7 @@ KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
 
 """
 """
-MIN_ERROR = 0.0001
+MIN_ERROR = 0.001
 
 """
 """
@@ -60,7 +60,7 @@ KEEP_PROP = 0.7
 """
 The number of elements in a training batch.
 """
-BATCH_SIZE = 10
+BATCH_SIZE = 100
 
 """
 """
