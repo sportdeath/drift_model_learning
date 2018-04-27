@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/first1_forward_l2_c10_rela_cumu_larger_error/"
+LOG_DIR = "tmp/drifter2/first1_forward_l2_c10_rela_cumu_larger_error_filt/"
 
 """
 The number of input states to the neural network.

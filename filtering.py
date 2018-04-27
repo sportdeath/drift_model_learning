@@ -40,10 +40,11 @@ if __name__ == "__main__":
     voltage = state_chunks[0][:,params.V_IND]
     voltages.append((0, voltage))
     voltages.append((0, bilateral_filter(voltage, 30, 6., 0.2)))
-    plotting.plot_vectors(voltages, title="Voltage")
+    # plotting.plot_vectors(voltages, title="Voltage")
 
     rpms = []
     rpm = state_chunks[0][:,params.RPM_IND]
     rpms.append((0, rpm))
     rpms.append((0, bilateral_filter(rpm, 30, 6., 0.2)))
+    rpms.append((0, control_chunks[0][:,params.THROTTLE_IND]))
     plotting.plot_vectors(rpms, title="RPM")

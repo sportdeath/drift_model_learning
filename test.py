@@ -3,7 +3,10 @@
 import numpy as np
 import tensorflow as tf
 
-from learn import *
+import learn
+import params
+import read_data
+import process_data
 
 TENSORFLOW_GRAPH = "model.ckpt"
 
@@ -38,23 +41,20 @@ class TestDriftModel:
         return i, state_batch, control_batch
 
 if __name__ == "__main__":
-    m = TestDriftModel()
+    # m = TestDriftModel()
 
-    t_chunks, state_chunks, control_chunks, p_chunks = read_chunks(VALIDATION_DIR)
+    t_chunks, state_chunks, control_chunks, p_chunks = read_data.read_chunks(params.VALIDATION_DIR)
 
     for i in range(10):
         # Make a random input batch
-        state_batch, control_batch, state_check_batch, control_check_batch = random_batch(
+        state_batch, control_batch, state_check_batch, control_check_batch = process_data.random_batch(
                 state_chunks, control_chunks, p_chunks)
 
         # state by simply integrating out the state differences.
-        # loss_base = state_check_batch[:,-STATE_STEPS:] - state_batch
-        loss_base = state_check_batch - state_batch[:,-CHECK_STEPS:]
+        loss_base = state_check_batch[:,0] - state_batch[:,-1]
 
         # Use the learned model
-        i = 0
-        while i + 1 < CHECK_STEPS:
-            i, state_batch, control_batch = m.compute_f(i, state_batch, control_batch, control_check_batch)
+        i, state_batch, control_batch = m.compute_f(0, state_batch, control_batch, control_check_batch)
 
         # loss = state_check_batch[:,-STATE_STEPS:] - state_batch
         loss = state_check_batch - state_batch[:,-CHECK_STEPS:]

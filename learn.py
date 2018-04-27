@@ -7,6 +7,7 @@ import time_stepping
 import read_data
 import process_data
 import params
+import filtering
 
 def dense_net(input_, training, name="dense_net", reuse=False):
     """
@@ -215,6 +216,12 @@ if __name__ == "__main__":
     # Read the input data
     t_chunks, state_chunks, control_chunks, p_chunks = read_data.read_chunks(params.TRAIN_DIR)
     t_chunks_val, state_chunks_val, control_chunks_val, p_chunks_val = read_data.read_chunks(params.VALIDATION_DIR)
+    for i in range(len(state_chunks)):
+        state_chunks[i][:,params.RPM_IND] = filtering.bilateral_filter(state_chunks[i][:,params.RPM_IND], 30, 6., 0.2)
+        state_chunks[i][:,params.V_IND] = filtering.bilateral_filter(state_chunks[i][:,params.V_IND], 30, 6., 0.2)
+    for i in range(len(state_chunks_val)):
+        state_chunks_val[i][:,params.RPM_IND] = filtering.bilateral_filter(state_chunks_val[i][:,params.RPM_IND], 30, 6., 0.2)
+        state_chunks_val[i][:,params.V_IND] = filtering.bilateral_filter(state_chunks_val[i][:,params.V_IND], 30, 6., 0.2)
 
     # Compute the average time step
     h = np.mean(np.diff(t_chunks[0]))
