@@ -16,7 +16,7 @@ def dense_net(input_, training, name="dense_net", reuse=False):
 
     Args:
         input_: The input tensor to the network.
-        training: A boolean tensor that is true if the network
+        training: A boolean tensor that is true if the netork
             is being trained.
         reuse: If true, the network is being reused and the
             weights will be shared with previous copies.
@@ -126,30 +126,26 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         x = dense_net(input_, training=training, reuse=reuse, name="x_net")
         y = dense_net(input_, training=training, reuse=reuse, name="y_net")
         theta = dense_net(input_, training=training, reuse=reuse, name="theta_net")
-        rpm = dense_net(input_, training=training, reuse=reuse, name="rpm_net")
-        voltage = dense_net(input_, training=training, reuse=reuse, name="v_net")
 
         # Here is the normalized data
-        dstate_batch_n = tf.stack((x, y, theta, rpm, voltage), axis=2)
+        dstate_batch_n = tf.stack((x, y, theta), axis=2)
 
         # Combine the results into one state
         # Un-normalize the data
         dstate_batch = process_data.set_origin(dstate_batch_n, -state_batch[:,-1], derivative=True)
 
         # Approximate the velocities using finite differences
-        # velocity_start = (state_batch[:,1,:] - state_batch[:,0,:])/h
-        # velocity_middle = (state_batch[:,2:,:] - state_batch[:,:-2,:])/(2 * h)
-        velocity_middle = (state_batch[:,1:,:] - state_batch[:,:-1,:])/h
+        velocity_start = (state_batch[:,1,:] - state_batch[:,0,:])/h
+        velocity_middle = (state_batch[:,2:,:] - state_batch[:,:-2,:])/(2 * h)
+        velocity_end = (state_batch[:,-1,:] - state_batch[:,-2,:])/h
 
         # Correct the end velocity using the learned model
         # velocity_end = dstate_batch + velocity_middle[:,-1:]
-        velocity_end = dstate_batch + tf.concat((
-            velocity_middle[:,-1:,:params.RPM_IND], 
-            tf.zeros((tf.shape(velocity_middle)[0], 1, 2))), axis=2)
+        velocity_end = dstate_batch + tf.expand_dims(velocity_end, axis=1)
 
         # Combine the slices
         velocity = tf.concat((
-                # tf.expand_dims(velocity_start, axis=1),
+                tf.expand_dims(velocity_start, axis=1),
                 velocity_middle,
                 velocity_end), axis=1)
 
@@ -158,57 +154,30 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
 def compute_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False):
     """
     """
-    # ts = time_stepping.RungeKutta(f)
-    ts = time_stepping.ForwardEuler(f)
+    ts = time_stepping.RungeKutta(f)
+    # ts = time_stepping.ForwardEuler(f)
 
-    i = 0
-    loss = 0
-    next_state_batch = state_batch
-    while i < params.CHECK_STEPS:
-        if i > 0:
-            reuse = True
+    # Integrate
+    i, next_state_batch, next_control_batch = ts.integrate(
+            0, h, 
+            state_batch, 
+            control_batch, 
+            control_check_batch, 
+            training, 
+            reuse)
 
-        # Integrate
-        i, next_state_batch, control_batch = ts.integrate(
-                i, h, 
-                next_state_batch, 
-                control_batch, 
-                control_check_batch, 
-                training, 
-                reuse)
-
-        error = state_check_batch[:,i-1] - next_state_batch[:,-1]
-        if i > 1:
-            last_state = state_check_batch[:,i-2]
-        else:
-            last_state = state_batch[:,-1]
-        error_relative = error/(tf.abs(state_check_batch[:,i-1] - last_state) + params.MIN_ERROR)
-        loss = loss + tf.reduce_sum(tf.square(error_relative))
-
-    # Compute the error relative to the distance traveled
-    # relative_error = (state_check_batch - next_state_batch[:,-params.CHECK_STEPS:,:])/\
-            # (tf.abs(state_check_batch - state_batch[:,-params.CHECK_STEPS:,:]) + params.MIN_ERROR)
-    # Check the very last state
-    # relative_error = (state_check_batch[:,-1] - next_state_batch[:,-1])/\
-            # (tf.abs(state_check_batch[:,-1] - state_batch[:,-1]) + params.MIN_ERROR)
-
-    # Accumulate the error
-    # loss = tf.reduce_sum(tf.abs(relative_error))
-    # loss = tf.reduce_sum(tf.square(relative_error))
+    error = state_check_batch[:,-1] - next_state_batch[:,-1]
+    error_relative = error/(tf.abs(state_check_batch[:,-1] - state_batch[:,-1]) + params.MIN_ERROR)
+    loss = tf.reduce_sum(tf.square(error_relative))
 
     # Write for summaries
     tf.summary.scalar("loss", loss)
-    # tf.summary.scalar("x_loss_rel", tf.reduce_mean(tf.abs(relative_error[:,params.X_IND])))
-    # tf.summary.scalar("y_loss_rel", tf.reduce_mean(tf.abs(relative_error[:,params.Y_IND])))
-    # tf.summary.scalar("theta_loss_rel", tf.reduce_mean(tf.abs(relative_error[:,params.THETA_IND])))
-    # tf.summary.scalar("rpm_loss_rel", tf.reduce_mean(tf.abs(relative_error[:,params.RPM_IND])))
-    # tf.summary.scalar("v_loss_rel", tf.reduce_mean(tf.abs(relative_error[:,params.V_IND])))
-    differences = tf.abs(state_check_batch[:,-1] - next_state_batch[:,-1])
-    tf.summary.scalar("x_loss", tf.reduce_mean(params.X_SCALING * differences[:,params.X_IND]))
-    tf.summary.scalar("y_loss", tf.reduce_mean(params.X_SCALING * differences[:,params.Y_IND]))
-    tf.summary.scalar("theta_loss", tf.reduce_mean(params.THETA_SCALING * differences[:,params.THETA_IND]))
-    tf.summary.scalar("rpm_loss", tf.reduce_mean(params.RPM_SCALING * differences[:,params.RPM_IND]))
-    tf.summary.scalar("v_loss", tf.reduce_mean(params.V_SCALING * differences[:,params.V_IND]))
+    tf.summary.scalar("x_loss", tf.reduce_mean(params.X_SCALING * tf.abs(error[:,params.X_IND])))
+    tf.summary.scalar("y_loss", tf.reduce_mean(params.X_SCALING * tf.abs(error[:,params.Y_IND])))
+    tf.summary.scalar("theta_loss", tf.reduce_mean(params.THETA_SCALING * tf.abs(error[:,params.THETA_IND])))
+    tf.summary.scalar("x_loss_rel", tf.reduce_mean(tf.abs(error_relative[:,params.X_IND])))
+    tf.summary.scalar("y_loss_rel", tf.reduce_mean(tf.abs(error_relative[:,params.Y_IND])))
+    tf.summary.scalar("theta_loss_rel", tf.reduce_mean(tf.abs(error_relative[:,params.THETA_IND])))
 
     return loss
 
@@ -216,12 +185,6 @@ if __name__ == "__main__":
     # Read the input data
     t_chunks, state_chunks, control_chunks, p_chunks = read_data.read_chunks(params.TRAIN_DIR)
     t_chunks_val, state_chunks_val, control_chunks_val, p_chunks_val = read_data.read_chunks(params.VALIDATION_DIR)
-    for i in range(len(state_chunks)):
-        state_chunks[i][:,params.RPM_IND] = filtering.bilateral_filter(state_chunks[i][:,params.RPM_IND], 30, 6., 0.2)
-        state_chunks[i][:,params.V_IND] = filtering.bilateral_filter(state_chunks[i][:,params.V_IND], 30, 6., 0.2)
-    for i in range(len(state_chunks_val)):
-        state_chunks_val[i][:,params.RPM_IND] = filtering.bilateral_filter(state_chunks_val[i][:,params.RPM_IND], 30, 6., 0.2)
-        state_chunks_val[i][:,params.V_IND] = filtering.bilateral_filter(state_chunks_val[i][:,params.V_IND], 30, 6., 0.2)
 
     # Compute the average time step
     h = np.mean(np.diff(t_chunks[0]))

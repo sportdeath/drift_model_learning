@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/first1_forward_l2_c10_rela_cumu_larger_error_filt/"
+LOG_DIR = "tmp/drifter2/no_voltage_rk/"
 
 """
 The number of input states to the neural network.
@@ -14,7 +14,7 @@ STATE_STEPS = 15
 """
 The number of future states to verify in training.
 """
-CHECK_STEPS = 10
+CHECK_STEPS = 2
 
 """
 The number of units and the activation functions
@@ -35,7 +35,7 @@ KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
 
 """
 """
-MIN_ERROR = np.array([0.001, 0.001, 0.001, 0.1, 0.1])
+MIN_ERROR = 0.001
 
 """
 """
@@ -74,7 +74,7 @@ LEARNING_RATE = 0.0001
 """
 The number of states in the system.
 """
-STATES = 5
+STATES = 3
 
 """
 The number of control inputs to the system.

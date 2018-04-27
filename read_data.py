@@ -72,11 +72,7 @@ def read_chunk(file_path):
         t = data[:, 0]
         t -= t[0]
         controls = data[:, 1:3]
-        states = data[:, 3:8]
-
-        # Reorder the observed states to be
-        # (x, y, theta, omega, V)
-        states = states[:,[2, 3, 4, 0, 1]]
+        states = data[:, 5:8]
 
         # Change theta = 0 to point in the positive x direction
         # and unwrap the angles
@@ -84,14 +80,12 @@ def read_chunk(file_path):
         states[:, params.THETA_IND] = np.unwrap(states[:, 2])
 
         # Normalize the steering angle around 0
-        controls[:, params.STEER_IND] -= 0.52
+        # controls[:, params.STEER_IND] -= 0.52
 
         # Scale all the states for normalization
         states[:, params.X_IND] /= params.X_SCALING
         states[:, params.Y_IND] /= params.Y_SCALING
         states[:, params.THETA_IND] /= params.THETA_SCALING
-        states[:, params.RPM_IND] /= params.RPM_SCALING
-        states[:, params.V_IND] /= params.V_SCALING
         controls[:, params.THROTTLE_IND] /= params.THROTTLE_SCALING
         controls[:, params.STEER_IND] /= params.STEER_SCALING
 
@@ -102,5 +96,5 @@ if __name__ == "__main__":
     Test the file reading.
     """
     t, state, control, p = read_chunks(params.TRAIN_DIR)
-    np.set_printoptions(threshold=np.inf)
-    print(control[0])
+    # np.set_printoptions(threshold=np.inf)
+    print(state[0])

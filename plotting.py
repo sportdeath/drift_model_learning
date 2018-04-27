@@ -73,14 +73,3 @@ if __name__ == "__main__":
     for i in range(3):
         states.append(chunk[:,i*params.STATE_STEPS:(i+1)*params.STATE_STEPS])
     plot_states(states)
-
-    # Plot the voltages and rpms
-    start = 0
-    voltages = []
-    rpms = []
-    for i in range(len(state_chunks)):
-        voltages.append((start, state_chunks[i][:,params.V_IND]))
-        rpms.append((start, state_chunks[i][:,params.RPM_IND]))
-        start += len(state_chunks[i])
-    plot_vectors(voltages,title="Voltage")
-    plot_vectors(rpms,title="RPM")

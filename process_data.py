@@ -3,7 +3,6 @@ import tensorflow as tf
 
 import params
 
-
 def random_batch(state_chunks, control_chunks, p_chunks):
     """
     Generate random batches of data from the dataset.
@@ -92,8 +91,7 @@ def set_origin(state_batch, origin_state, derivative=False, name="normalize_batc
 
         state_batch = tf.concat((
             position[:,:,:,0],
-            tf.expand_dims(theta, axis=2),
-            state_batch[:,:,params.RPM_IND:]),
+            tf.expand_dims(theta, axis=2)),
             axis=2)
 
     return state_batch
@@ -117,7 +115,7 @@ if __name__ == "__main__":
             # Plot that same vector normalized
             state_batch_n_tf = set_origin(state_batch, state_batch[:,-1])
             state_check_batch_n_tf = set_origin(state_check_batch, state_batch[:,-1])
-            plotting.plot_states([state_batch_n_tf.eval(), state_check_batch_n_tf.eval()])
+            # plotting.plot_states([state_batch_n_tf.eval(), state_check_batch_n_tf.eval()])
 
             # Take the differences in the normalized frame
             diff_n_tf = state_batch_n_tf[:,1:] - state_batch_n_tf[:,:-1]
