@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/no_voltage_rk/"
+LOG_DIR = "tmp/drifter2/no_voltage_rk_min_error0001/"
 
 """
 The number of input states to the neural network.
@@ -35,7 +35,7 @@ KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
 
 """
 """
-MIN_ERROR = 0.001
+MIN_ERROR = 0.0001
 
 """
 """

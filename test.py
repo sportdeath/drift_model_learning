@@ -7,6 +7,7 @@ import learn
 import params
 import read_data
 import process_data
+import time_stepping
 
 TENSORFLOW_GRAPH = "model.ckpt"
 
@@ -17,11 +18,12 @@ class TestDriftModel:
         training = False
         reuse = False
         self.i_ph = tf.placeholder(tf.int32, shape=(), name="i")
-        self.state_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, STATE_STEPS, 5), name="state_batch")
-        self.control_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, STATE_STEPS, 2), name="control_batch")
-        self.control_check_batch_ph = tf.placeholder(tf.float32, shape=(BATCH_SIZE, CHECK_STEPS, 2), name="control_check_batch")
+        self.state_batch_ph = tf.placeholder(tf.float32, shape=(params.BATCH_SIZE, params.STATE_STEPS, params.STATES), name="state_batch")
+        self.control_batch_ph = tf.placeholder(tf.float32, shape=(params.BATCH_SIZE, params.STATE_STEPS, params.CONTROLS), name="control_batch")
+        self.control_check_batch_ph = tf.placeholder(tf.float32, shape=(params.BATCH_SIZE, params.CHECK_STEPS, params.CONTROLS), name="control_check_batch")
 
-        self.i, self.state_batch, self.control_batch, k1 = runge_kutta(self.i_ph, h, self.state_batch_ph, self.control_batch_ph, self.control_check_batch_ph, training, reuse)
+        ts = time_stepping.RungeKutta(learn.f)
+        self.i, self.state_batch, self.control_batch = ts.integrate(self.i_ph, h, self.state_batch_ph, self.control_batch_ph, self.control_check_batch_ph, training, reuse)
 
         self.sess = tf.Session()
         tf.train.Saver().restore(self.sess, TENSORFLOW_GRAPH)
@@ -41,7 +43,7 @@ class TestDriftModel:
         return i, state_batch, control_batch
 
 if __name__ == "__main__":
-    # m = TestDriftModel()
+    m = TestDriftModel()
 
     t_chunks, state_chunks, control_chunks, p_chunks = read_data.read_chunks(params.VALIDATION_DIR)
 
@@ -51,24 +53,24 @@ if __name__ == "__main__":
                 state_chunks, control_chunks, p_chunks)
 
         # state by simply integrating out the state differences.
-        loss_base = state_check_batch[:,0] - state_batch[:,-1]
+        loss_base = state_check_batch[:,-1] - (state_batch[:,-1] + params.CHECK_STEPS * (state_batch[:,-1] - state_batch[:,-2]))
 
         # Use the learned model
         i, state_batch, control_batch = m.compute_f(0, state_batch, control_batch, control_check_batch)
 
         # loss = state_check_batch[:,-STATE_STEPS:] - state_batch
-        loss = state_check_batch - state_batch[:,-CHECK_STEPS:]
+        loss = state_check_batch[:,-1] - state_batch[:,-1]
         
         print("Loss from with no model:", np.sum(np.square(loss_base)))
         print("Loss from learned model:", np.sum(np.square(loss)))
 
-    state_batch = np.zeros((BATCH_SIZE, STATE_STEPS, STATES))
-    state_batch[:,:,4] = 8./float(VOLTAGE_SCALING)
-    control_batch = np.zeros((BATCH_SIZE, STATE_STEPS, CONTROLS))
+    state_batch = np.zeros((params.BATCH_SIZE, params.STATE_STEPS, params.STATES),dtype=np.float32)
+    control_batch = np.zeros((params.BATCH_SIZE, params.STATE_STEPS, params.CONTROLS))
     control_batch[:,:,1] = 0.52
-    control_check_batch = np.zeros((BATCH_SIZE, CHECK_STEPS, CONTROLS))
+    control_check_batch = np.zeros((params.BATCH_SIZE, params.CHECK_STEPS, params.CONTROLS))
     control_check_batch[:,:,1] = 0.52
 
     for i in range(1000):
         print(state_batch[0])
-        x, state_batch, control_batch = m.compute_f(0, state_batch, control_batch, control_check_batch)
+        i, next_state_batch, control_batch = m.compute_f(0, state_batch, control_batch, control_check_batch)
+        state_batch = np.concatenate((state_batch[:,i:], next_state_batch[:,-i:]), axis=1)
