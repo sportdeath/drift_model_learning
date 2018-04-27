@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/no_voltage_rk_batch100/"
+LOG_DIR = "tmp/drifter2/no_voltage_rk_batch100_theta_norm/"
 
 """
 The number of input states to the neural network.
@@ -22,8 +22,6 @@ used at the output of each layer of the network.
 """
 LAYER_UNITS = [500, 1]
 ACTIVATIONS = [tf.nn.relu, None]
-# LAYER_UNITS = [1]
-# ACTIVATIONS = [None]
 
 """
 The initializer in the neural network.

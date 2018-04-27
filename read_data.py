@@ -80,7 +80,7 @@ def read_chunk(file_path):
         states[:, params.THETA_IND] = np.unwrap(states[:, 2])
 
         # Normalize the steering angle around 0
-        # controls[:, params.STEER_IND] -= 0.52
+        controls[:, params.STEER_IND] -= 0.52
 
         # Scale all the states for normalization
         states[:, params.X_IND] /= params.X_SCALING
@@ -95,6 +95,8 @@ if __name__ == "__main__":
     """
     Test the file reading.
     """
+    import plotting
+
     t, state, control, p = read_chunks(params.TRAIN_DIR)
-    # np.set_printoptions(threshold=np.inf)
-    print(state[0])
+    plotting.plot_vectors([(0, control[9][:,params.THROTTLE_IND])],title="Throttle")
+    plotting.plot_vectors([(0, control[9][:,params.STEER_IND])],title="Steer")
