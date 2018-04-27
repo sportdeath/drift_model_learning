@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/first1_forward_l2_c10_rela_cumu/"
+LOG_DIR = "tmp/drifter2/first1_forward_l2_c10_rela_cumu_larger_error/"
 
 """
 The number of input states to the neural network.
@@ -35,7 +35,7 @@ KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
 
 """
 """
-MIN_ERROR = np.array([0.0001, 0.0001, 0.0001, 0.01, 0.01])
+MIN_ERROR = np.array([0.001, 0.001, 0.001, 0.1, 0.1])
 
 """
 """
