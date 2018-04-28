@@ -168,7 +168,8 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
 
     error = state_check_batch[:,-1] - next_state_batch[:,-1]
     error_relative = error/(tf.abs(state_check_batch[:,-1] - state_batch[:,-1]) + params.MIN_ERROR)
-    loss = tf.reduce_sum(tf.square(error_relative))
+    # loss = tf.reduce_sum(tf.square(error_relative))
+    loss = tf.reduce_sum(tf.abs(error))
 
     # Write for summaries
     tf.summary.scalar("loss", loss)
