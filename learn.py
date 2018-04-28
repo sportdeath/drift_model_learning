@@ -141,7 +141,7 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
 
         # Correct the end velocity using the learned model
         # velocity_end = dstate_batch + velocity_middle[:,-1:]
-        velocity_end = dstate_batch + tf.expand_dims(velocity_end, axis=1)
+        velocity_end = dstate_batch + params.DECAY * tf.expand_dims(velocity_end, axis=1)
 
         # Combine the slices
         velocity = tf.concat((

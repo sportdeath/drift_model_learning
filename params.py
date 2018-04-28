@@ -2,9 +2,13 @@ import numpy as np
 import tensorflow as tf
 
 """
+"""
+DECAY = 0.92
+
+"""
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/no_voltage_rk_batch100_theta_norm/"
+LOG_DIR = "tmp/drifter2/no_voltage_rk_batch100_theta_norm_decay/"
 
 """
 The number of input states to the neural network.
