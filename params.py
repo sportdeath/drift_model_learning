@@ -8,12 +8,12 @@ DECAY = 0.92
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/no_voltage_rk_batch100_theta_norm_decay_5s/"
+LOG_DIR = "tmp/drifter2/no_voltage_rk_batch100_theta_norm_decay_30s/"
 
 """
 The number of input states to the neural network.
 """
-STATE_STEPS = 5
+STATE_STEPS = 30
 
 """
 The number of future states to verify in training.
