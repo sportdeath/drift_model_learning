@@ -7,7 +7,6 @@ import time_stepping
 import read_data
 import process_data
 import params
-import filtering
 
 def dense_net(input_, training, name="dense_net", reuse=False):
     """
