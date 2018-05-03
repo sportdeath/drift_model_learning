@@ -72,7 +72,7 @@ def read_chunk(file_path):
         t = data[:, 0]
         t -= t[0]
         controls = data[:, 1:3]
-        states = data[:, 5:8]
+        states = np.concatenate((data[:, 5:8],np.expand_dims(data[:,3],axis=1)),axis=1)
 
         # Change theta = 0 to point in the positive x direction
         # and unwrap the angles
@@ -86,6 +86,7 @@ def read_chunk(file_path):
         states[:, params.X_IND] /= params.X_SCALING
         states[:, params.Y_IND] /= params.Y_SCALING
         states[:, params.THETA_IND] /= params.THETA_SCALING
+        states[:, params.RPM_IND] /= params.THROTTLE_SCALING
         controls[:, params.THROTTLE_IND] /= params.THROTTLE_SCALING
         controls[:, params.STEER_IND] /= params.STEER_SCALING
 
@@ -97,6 +98,7 @@ if __name__ == "__main__":
     """
     import plotting
 
+    ind = 11
     t, state, control, p = read_chunks(params.TRAIN_DIR)
-    plotting.plot_vectors([(0, control[9][:,params.THROTTLE_IND])],title="Throttle")
-    plotting.plot_vectors([(0, control[9][:,params.STEER_IND])],title="Steer")
+    plotting.plot_vectors([(0, control[ind][:,params.STEER_IND]),(0,state[ind][:,params.THETA_IND])],title="Steer and thet")
+    plotting.plot_vectors([(0, control[ind][:,params.THROTTLE_IND]),(0,state[ind][:,params.RPM_IND])],title="RPM and throttle")

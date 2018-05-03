@@ -8,32 +8,34 @@ DECAY = 0.92
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/no_voltage_rk_batch100_theta_norm_decay_30s/"
+LOG_DIR = "tmp/drifter_physics/18/"
 
 """
 The number of input states to the neural network.
 """
-STATE_STEPS = 30
+STATE_STEPS = 2
 
 """
 The number of future states to verify in training.
 """
-CHECK_STEPS = 2
+CHECK_STEPS = 20
 
 """
 The number of units and the activation functions
 used at the output of each layer of the network.
 """
-LAYER_UNITS = [500, 1]
-ACTIVATIONS = [tf.nn.relu, None]
+# LAYER_UNITS = [50, 1]
+# ACTIVATIONS = [tf.nn.relu, None]
+LAYER_UNITS = [1]
+ACTIVATIONS = [None]
 
 """
 The initializer in the neural network.
 """
-INIT_STD_DEV = 0.001
+INIT_STD_DEV = 0.1
 # INIT_STD_DEV = 0.1
-KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
-# KERNEL_INITIALIZER = tf.contrib.layers.xavier_initializer()
+# KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
+KERNEL_INITIALIZER = tf.contrib.layers.xavier_initializer()
 
 """
 """
@@ -62,7 +64,7 @@ KEEP_PROP = 0.7
 """
 The number of elements in a training batch.
 """
-BATCH_SIZE = 100
+BATCH_SIZE = 1000
 
 """
 """
@@ -70,13 +72,13 @@ BATCH_SIZE = 100
 """
 The learning rate of the neural network.
 """
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.01
 # LEARNING_RATE = 0.1
 
 """
 The number of states in the system.
 """
-STATES = 3
+STATES = 4
 
 """
 The number of control inputs to the system.
@@ -104,7 +106,7 @@ Factors to scale each variable before entering the network.
 X_SCALING = 1.
 Y_SCALING = 1.
 THETA_SCALING = 1.
-RPM_SCALING = 20000.
+# RPM_SCALING = 20000
 V_SCALING = 10.
 THROTTLE_SCALING = 20000.
 STEER_SCALING = 1.

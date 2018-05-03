@@ -90,6 +90,7 @@ def feature_expansion(x, name="feature_augmentation"):
 
         return x_expanded
 
+
 def f(h, state_batch, control_batch, training, reuse, name="f"):
     """
     Compute the derivative at a state given its control input.
