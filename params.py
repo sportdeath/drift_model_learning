@@ -8,7 +8,7 @@ DECAY = 0.92
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter_physics/18/"
+LOG_DIR = "tmp/drifter_physics/20/"
 
 """
 The number of input states to the neural network.
@@ -24,10 +24,10 @@ CHECK_STEPS = 20
 The number of units and the activation functions
 used at the output of each layer of the network.
 """
-# LAYER_UNITS = [50, 1]
-# ACTIVATIONS = [tf.nn.relu, None]
-LAYER_UNITS = [1]
-ACTIVATIONS = [None]
+LAYER_UNITS = [200, 1]
+ACTIVATIONS = [tf.nn.relu, None]
+# LAYER_UNITS = [1]
+# ACTIVATIONS = [None]
 
 """
 The initializer in the neural network.
@@ -64,7 +64,7 @@ KEEP_PROP = 0.7
 """
 The number of elements in a training batch.
 """
-BATCH_SIZE = 1000
+BATCH_SIZE = 256
 
 """
 """
