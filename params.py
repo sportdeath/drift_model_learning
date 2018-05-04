@@ -8,7 +8,7 @@ DECAY = 0.92
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drifter2/no_voltage_rk_batch100_theta_norm_decay_30s/"
+LOG_DIR = "tmp/drift/0/"
 
 """
 The number of input states to the neural network.

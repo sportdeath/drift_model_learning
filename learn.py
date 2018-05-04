@@ -220,13 +220,17 @@ if __name__ == "__main__":
 
     # Initialize the learning rate
     global_step = tf.Variable(0, trainable=False)
-    # learning_rate = tf.train.polynomial_decay(
+    learning_rate = tf.train.polynomial_decay(
             # params.LEARNING_RATE,
-            # global_step,
+            0.01,
+            global_step,
+            200000,
+            0.0001,
+            power=10)
             # LEARNING_RATE_END_STEPS,
             # LEARNING_RATE_END,
             # power=LEARNING_RATE_POWER)
-    # tf.summary.scalar("learning_rate", learning_rate)
+    tf.summary.scalar("learning_rate", learning_rate)
 
     # Minimize the loss function
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS) # For batch norm
