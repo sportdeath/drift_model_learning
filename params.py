@@ -9,7 +9,7 @@ DECAY = 1
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/4-tanh/"
+LOG_DIR = "tmp/drift/6-tanh-50n-xavier/"
 
 """
 The number of input states to the neural network.
@@ -27,7 +27,7 @@ used at the output of each layer of the network.
 """
 # LAYER_UNITS = [500, 1]
 # ACTIVATIONS = [tf.nn.relu, None]
-LAYER_UNITS = [500, 1]
+LAYER_UNITS = [50, 1]
 ACTIVATIONS = [tf.tanh, None]
 
 """
@@ -35,8 +35,8 @@ The initializer in the neural network.
 """
 INIT_STD_DEV = 0.001
 # INIT_STD_DEV = 0.1
-KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
-# KERNEL_INITIALIZER = tf.contrib.layers.xavier_initializer()
+# KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
+KERNEL_INITIALIZER = tf.contrib.layers.xavier_initializer()
 
 """
 """
@@ -115,8 +115,10 @@ STEER_SCALING = 1.
 """
 The directories of training and validation data.
 """
-TRAIN_DIR = "./train/"
-VALIDATION_DIR = "./validation/"
+# TRAIN_DIR = "./train/"
+# VALIDATION_DIR = "./validation/"
+TRAIN_DIR = "./validation/"
+VALIDATION_DIR = "./train/"
 
 """
 The file extension for training data.
