@@ -9,7 +9,7 @@ DECAY = 1
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/11-steer-flipped-mix/"
+LOG_DIR = "tmp/drift/12-steer-flipped-tanh/"
 
 """
 The number of input states to the neural network.
@@ -30,8 +30,10 @@ X_LAYER_UNITS = [50, 1]
 Y_LAYER_UNITS = [50, 1]
 THETA_LAYER_UNITS = [50, 1]
 # ACTIVATIONS = [tf.tanh, None]
-X_ACTIVATIONS = [tf.nn.relu, None]
-Y_ACTIVATIONS = [tf.nn.relu, None]
+# X_ACTIVATIONS = [tf.nn.relu, None]
+# Y_ACTIVATIONS = [tf.nn.relu, None]
+X_ACTIVATIONS = [tf.nn.tanh, None]
+Y_ACTIVATIONS = [tf.nn.tanh, None]
 THETA_ACTIVATIONS = [tf.tanh, None]
 
 """
