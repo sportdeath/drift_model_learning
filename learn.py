@@ -8,7 +8,7 @@ import read_data
 import process_data
 import params
 
-def dense_net(input_, training, name="dense_net", reuse=False):
+def dense_net(input_, training, layer_units=[1], activations=[None], name="dense_net", reuse=False):
     """
     Regress the input using a fully connected neural network.
     The network parameters are detailed in the params file.
@@ -28,13 +28,13 @@ def dense_net(input_, training, name="dense_net", reuse=False):
 
     with tf.variable_scope(name, reuse=reuse):
 
-        for i, num_units in enumerate(params.LAYER_UNITS):
+        for i, num_units in enumerate(layer_units):
             # Perform the dense layer
             layer_name = "dense_" + str(i)
             hidden = tf.layers.dense(
                     inputs=hidden,
                     units=num_units,
-                    activation=params.ACTIVATIONS[i],
+                    activation=activations[i],
                     kernel_initializer=params.KERNEL_INITIALIZER,
                     name=layer_name,
                     reuse=reuse)
@@ -47,7 +47,7 @@ def dense_net(input_, training, name="dense_net", reuse=False):
                     bias = tf.get_variable("bias")
                     tf.summary.histogram("biases", bias)
 
-            if i + 1 < len(params.LAYER_UNITS):
+            if i + 1 < len(layer_units):
                 if params.BATCH_NORM:
                     # Batch renorm
                     # https://arxiv.org/pdf/1702.03275.pdf
@@ -138,9 +138,9 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         # input_ = feature_expansion(input_)
 
         # Use a separate neural net to compute each state variable
-        dx = dense_net(input_, training=training, reuse=reuse, name="dx_net")
-        dy = dense_net(input_, training=training, reuse=reuse, name="dy_net")
-        dtheta = dense_net(input_, training=training, reuse=reuse, name="dtheta_net")
+        dx = dense_net(input_, layer_units=params.X_LAYER_UNITS, activations=params.X_ACTIVATIONS, training=training, reuse=reuse, name="dx_net")
+        dy = dense_net(input_, layer_units=params.Y_LAYER_UNITS, activations=params.Y_ACTIVATIONS, training=training, reuse=reuse, name="dy_net")
+        dtheta = dense_net(input_, layer_units=params.THETA_LAYER_UNITS, activations=params.THETA_ACTIVATIONS, training=training, reuse=reuse, name="dtheta_net")
 
         # Here is the normalized data
         dstate_batch_n = tf.stack((dx, dy, dtheta), axis=2)
