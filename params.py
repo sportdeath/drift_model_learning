@@ -9,7 +9,7 @@ DECAY = 1
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/1/"
+LOG_DIR = "tmp/drift/4-tanh/"
 
 """
 The number of input states to the neural network.
@@ -25,8 +25,10 @@ CHECK_STEPS = 2
 The number of units and the activation functions
 used at the output of each layer of the network.
 """
+# LAYER_UNITS = [500, 1]
+# ACTIVATIONS = [tf.nn.relu, None]
 LAYER_UNITS = [500, 1]
-ACTIVATIONS = [tf.nn.relu, None]
+ACTIVATIONS = [tf.tanh, None]
 
 """
 The initializer in the neural network.
