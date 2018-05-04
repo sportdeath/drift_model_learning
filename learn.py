@@ -108,29 +108,29 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
     """
 
     with tf.variable_scope(name):
-        # Approximate the velocities using finite differences
-        velocity_start = (state_batch[:,1,:] - state_batch[:,0,:])/h
-        velocity_middle = (state_batch[:,2:,:] - state_batch[:,:-2,:])/(2 * h)
-        velocity_end = (state_batch[:,-1,:] - state_batch[:,-2,:])/h
-
-        # Multiply steer times the sign of the velocity
-        velocity = tf.concat((
-                tf.expand_dims(velocity_start, axis=1),
-                velocity_middle,
-                tf.expand_dims(velocity_end, axis=1)), 
-                axis=1)
-        print(velocity)
-        steer_flipped = control_batch[:,:,params.STEER_IND] * tf.sign(velocity[:,:,params.X_IND])
-
         # Normalize the states around the last pose
         state_batch_n = process_data.set_origin(state_batch, state_batch[:, -1])
+
+        # Approximate the velocities using finite differences
+        velocity_start_n = (state_batch_n[:,1,:] - state_batch_n[:,0,:])/h
+        velocity_middle_n = (state_batch_n[:,2:,:] - state_batch_n[:,:-2,:])/(2 * h)
+        velocity_end_n = (state_batch_n[:,-1,:] - state_batch_n[:,-2,:])/h
+
+        # Multiply steer times the sign of the velocity
+        velocity_n = tf.concat((
+                tf.expand_dims(velocity_start_n, axis=1),
+                velocity_middle_n,
+                tf.expand_dims(velocity_end_n, axis=1)), 
+                axis=1)
+        print(velocity_n)
+        steer_flipped = control_batch[:,:,params.STEER_IND] * tf.sign(velocity_n[:,:,params.X_IND])
 
         # Combine the normalized states and controls
         # into one large state.
         input_ = tf.concat((
             tf.layers.flatten(state_batch_n),
-            tf.layers.flatten(control_batch),
-            # tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND]),
+            # tf.layers.flatten(control_batch),
+            tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND]),
             tf.layers.flatten(steer_flipped)),
             axis=1)
 
@@ -145,19 +145,19 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         # Here is the normalized data
         dstate_batch_n = tf.stack((dx, dy, dtheta), axis=2)
 
-        # Combine the results into one state
-        # Un-normalize the data
-        dstate_batch = process_data.set_origin(dstate_batch_n, -state_batch[:,-1], derivative=True)
-
         # Correct the end velocity using the learned model
         # velocity_end = dstate_batch + velocity_middle[:,-1:]
-        velocity_end = dstate_batch + params.DECAY * tf.expand_dims(velocity_end, axis=1)
+        velocity_end_n = dstate_batch_n + params.DECAY * tf.expand_dims(velocity_end_n, axis=1)
 
         # Combine the slices
-        velocity = tf.concat((
-                tf.expand_dims(velocity_start, axis=1),
-                velocity_middle,
-                velocity_end), axis=1)
+        velocity_n = tf.concat((
+                tf.expand_dims(velocity_start_n, axis=1),
+                velocity_middle_n,
+                velocity_end_n), axis=1)
+
+        # Combine the results into one state
+        # Un-normalize the data
+        velocity = process_data.set_origin(velocity_n, -state_batch[:,-1], derivative=True)
 
     return velocity
 
