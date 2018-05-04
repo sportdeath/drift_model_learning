@@ -3,17 +3,18 @@ import tensorflow as tf
 
 """
 """
-DECAY = 0.92
+# DECAY = 0.92
+DECAY = 1
 
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/0/"
+LOG_DIR = "tmp/drift/1/"
 
 """
 The number of input states to the neural network.
 """
-STATE_STEPS = 30
+STATE_STEPS = 4
 
 """
 The number of future states to verify in training.
