@@ -108,6 +108,20 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
     """
 
     with tf.variable_scope(name):
+        # Approximate the velocities using finite differences
+        velocity_start = (state_batch[:,1,:] - state_batch[:,0,:])/h
+        velocity_middle = (state_batch[:,2:,:] - state_batch[:,:-2,:])/(2 * h)
+        velocity_end = (state_batch[:,-1,:] - state_batch[:,-2,:])/h
+
+        # Multiply steer times the sign of the velocity
+        velocity = tf.concat((
+                tf.expand_dims(velocity_start, axis=1),
+                velocity_middle,
+                tf.expand_dims(velocity_end, axis=1)), 
+                axis=1)
+        print(velocity)
+        steer_flipped = control_batch[:,:,params.STEER_IND] * tf.sign(velocity[:,:,params.X_IND])
+
         # Normalize the states around the last pose
         state_batch_n = process_data.set_origin(state_batch, state_batch[:, -1])
 
@@ -115,28 +129,25 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         # into one large state.
         input_ = tf.concat((
             tf.layers.flatten(state_batch_n),
-            tf.layers.flatten(control_batch)),
+            tf.layers.flatten(control_batch),
+            # tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND]),
+            tf.layers.flatten(steer_flipped)),
             axis=1)
 
         # Augment the features with useful functions
         # input_ = feature_expansion(input_)
 
         # Use a separate neural net to compute each state variable
-        x = dense_net(input_, training=training, reuse=reuse, name="x_net")
-        y = dense_net(input_, training=training, reuse=reuse, name="y_net")
-        theta = dense_net(input_, training=training, reuse=reuse, name="theta_net")
+        dx = dense_net(input_, training=training, reuse=reuse, name="dx_net")
+        dy = dense_net(input_, training=training, reuse=reuse, name="dy_net")
+        dtheta = dense_net(input_, training=training, reuse=reuse, name="dtheta_net")
 
         # Here is the normalized data
-        dstate_batch_n = tf.stack((x, y, theta), axis=2)
+        dstate_batch_n = tf.stack((dx, dy, dtheta), axis=2)
 
         # Combine the results into one state
         # Un-normalize the data
         dstate_batch = process_data.set_origin(dstate_batch_n, -state_batch[:,-1], derivative=True)
-
-        # Approximate the velocities using finite differences
-        velocity_start = (state_batch[:,1,:] - state_batch[:,0,:])/h
-        velocity_middle = (state_batch[:,2:,:] - state_batch[:,:-2,:])/(2 * h)
-        velocity_end = (state_batch[:,-1,:] - state_batch[:,-2,:])/h
 
         # Correct the end velocity using the learned model
         # velocity_end = dstate_batch + velocity_middle[:,-1:]

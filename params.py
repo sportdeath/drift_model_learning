@@ -9,7 +9,7 @@ DECAY = 1
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/7-tanh-50n-xavier/"
+LOG_DIR = "tmp/drift/10-steer-flipped/"
 
 """
 The number of input states to the neural network.
