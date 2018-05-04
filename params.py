@@ -9,7 +9,7 @@ DECAY = 1
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/6-tanh-50n-xavier/"
+LOG_DIR = "tmp/drift/7-tanh-50n-xavier/"
 
 """
 The number of input states to the neural network.
@@ -115,10 +115,10 @@ STEER_SCALING = 1.
 """
 The directories of training and validation data.
 """
-# TRAIN_DIR = "./train/"
-# VALIDATION_DIR = "./validation/"
-TRAIN_DIR = "./validation/"
-VALIDATION_DIR = "./train/"
+TRAIN_DIR = "./train/"
+VALIDATION_DIR = "./validation/"
+# TRAIN_DIR = "./validation/"
+# VALIDATION_DIR = "./train/"
 
 """
 The file extension for training data.
