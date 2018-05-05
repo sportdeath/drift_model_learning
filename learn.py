@@ -107,53 +107,76 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         name: The name of the operation.
     """
 
-    with tf.variable_scope(name):
+    with tf.variable_scope(name, reuse=reuse):
         # Normalize the states around the last pose
         state_batch_n = process_data.set_origin(state_batch, state_batch[:, -1])
 
         # Approximate the velocities using finite differences
         velocity_start_n = (state_batch_n[:,1,:] - state_batch_n[:,0,:])/h
         velocity_middle_n = (state_batch_n[:,2:,:] - state_batch_n[:,:-2,:])/(2 * h)
-        velocity_end_n = (state_batch_n[:,-1,:] - state_batch_n[:,-2,:])/h
 
-        # Multiply steer times the sign of the velocity
-        velocity_n = tf.concat((
-                tf.expand_dims(velocity_start_n, axis=1),
-                velocity_middle_n,
-                tf.expand_dims(velocity_end_n, axis=1)), 
-                axis=1)
-        print(velocity_n)
-        steer_flipped = control_batch[:,:,params.STEER_IND] * tf.sign(velocity_n[:,:,params.X_IND])
+        # Get the last velocity
+        # forward_rate = velocity_middle_n[:,-1,params.X_IND]
+        # lateral_rate = velocity_middle_n[:,-1,params.Y_IND]
+        # yaw_rate = velocity_middle_n[:,-1,params.THETA_IND]
+
+        # Approximate the forward and lateral forces
+        # ddx = lateral_rate * yaw_rate
+        # ddy = -forward_rate * yaw_rate
+        # ddtheta = tf.zeros(tf.shape(ddx))
+        # ddx = tf.reshape(ddx, (-1, 1))
+        # ddy = tf.reshape(ddy, (-1, 1))
+        # ddtheta = tf.reshape(ddtheta, (-1, 1))
+
+        # print(velocity_n)
+        # steer_flipped = control_batch[:,:,params.STEER_IND] * tf.sign(velocity_n[:,:,params.X_IND])
 
         # Combine the normalized states and controls
         # into one large state.
         input_ = tf.concat((
             tf.layers.flatten(state_batch_n),
-            # tf.layers.flatten(control_batch),
-            tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND]),
-            tf.layers.flatten(steer_flipped)),
+            # tf.layers.flatten(velocity_middle_n),
+            # tf.layers.flatten(control_batch)),
+            tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
+            # tf.layers.flatten(steer_flipped)),
             axis=1)
 
-        # Augment the features with useful functions
-        # input_ = feature_expansion(input_)
+        # Incorporate the steering command
+        steer_scaling = tf.get_variable("steer_scaling", shape=[], dtype=tf.float32, initializer=tf.ones_initializer(), trainable=False)
+        tf.summary.scalar("steer_scaling", steer_scaling)
+        steer = steer_scaling * control_batch[:,:,params.STEER_IND]
+        steer_components = tf.concat((tf.ones(tf.shape(steer)), tf.sin(steer), tf.cos(steer)), axis=1)
+
+        print(input_)
+        # Multiply the inputs by the steered components
+        input_ = tf.layers.flatten(
+                tf.tile(tf.expand_dims(steer_components, axis=1), (1, tf.shape(input_)[1], 1)) * \
+                tf.tile(tf.expand_dims(input_, axis=2), (1, 1, tf.shape(steer_components)[1])))
+        print(input_)
+        print("yolo")
 
         # Use a separate neural net to compute each state variable
-        dx = dense_net(input_, layer_units=params.X_LAYER_UNITS, activations=params.X_ACTIVATIONS, training=training, reuse=reuse, name="dx_net")
-        dy = dense_net(input_, layer_units=params.Y_LAYER_UNITS, activations=params.Y_ACTIVATIONS, training=training, reuse=reuse, name="dy_net")
-        dtheta = dense_net(input_, layer_units=params.THETA_LAYER_UNITS, activations=params.THETA_ACTIVATIONS, training=training, reuse=reuse, name="dtheta_net")
+        dx = dense_net(input_, layer_units=params.X_LAYER_UNITS, activations=params.X_ACTIVATIONS, training=training, reuse=reuse, name="ddx_net")
+        dy = dense_net(input_, layer_units=params.Y_LAYER_UNITS, activations=params.Y_ACTIVATIONS, training=training, reuse=reuse, name="ddy_net")
+        dtheta = dense_net(input_, layer_units=params.THETA_LAYER_UNITS, activations=params.THETA_ACTIVATIONS, training=training, reuse=reuse, name="ddtheta_net")
+
+        dx = tf.reduce_sum(steer_components * dx, axis=1)
+        dy = tf.reduce_sum(steer_components * dy, axis=1)
+        dtheta = tf.reduce_sum(steer_components * dtheta, axis=1)
+        print(dx, dy, dtheta)
+        print("yolo")
 
         # Here is the normalized data
-        dstate_batch_n = tf.stack((dx, dy, dtheta), axis=2)
+        dstate_batch_n = tf.stack((dx, dy, dtheta), axis=1)
 
         # Correct the end velocity using the learned model
-        # velocity_end = dstate_batch + velocity_middle[:,-1:]
-        velocity_end_n = dstate_batch_n + params.DECAY * tf.expand_dims(velocity_end_n, axis=1)
+        velocity_end_n = velocity_middle_n[:,-1,:] + dstate_batch_n
 
         # Combine the slices
         velocity_n = tf.concat((
                 tf.expand_dims(velocity_start_n, axis=1),
                 velocity_middle_n,
-                velocity_end_n), axis=1)
+                tf.expand_dims(velocity_end_n, axis=1)), axis=1)
 
         # Combine the results into one state
         # Un-normalize the data

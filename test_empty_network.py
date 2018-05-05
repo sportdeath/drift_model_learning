@@ -13,7 +13,8 @@ if __name__ == "__main__":
     # Set the timestep low so we only see
     # the initialization effects
     # (it cannot be zero due to division)
-    h = 0.000000001
+    # h = 0.000000001
+    h = 0.008333444595336914
 
     # Make placeholders
     state_batch_ph = tf.placeholder(tf.float32, shape=(1, params.STATE_STEPS, params.STATES), name="state_batch")
