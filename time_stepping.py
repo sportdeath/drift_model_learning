@@ -19,7 +19,7 @@ class TimeStepper:
 
 class ForwardEuler(TimeStepper):
 
-    def integrate(self, i, h, state_batch, control_batch, control_check_batch, training, reuse, name="forward_euler"):
+    def integrate(self, i, h, state_batch, control_batch, control_check_batch, training, reuse, name="time_stepping"):
         with tf.variable_scope(name):
             dstate_batch = self.f(h, state_batch, control_batch, training, reuse)
             i, control_batch = self.increment_controls(i, control_batch, control_check_batch)
@@ -30,7 +30,7 @@ class ForwardEuler(TimeStepper):
 
 class RungeKutta(TimeStepper):
 
-    def integrate(self, i, h, state_batch, control_batch, control_check_batch, training, reuse, name="runge_kutta"):
+    def integrate(self, i, h, state_batch, control_batch, control_check_batch, training, reuse, name="time_stepping"):
         with tf.variable_scope(name):
             k1 = self.f(h, state_batch, control_batch, training, reuse)
 

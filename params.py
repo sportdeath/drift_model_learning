@@ -2,14 +2,9 @@ import numpy as np
 import tensorflow as tf
 
 """
-"""
-# DECAY = 0.92
-DECAY = 1
-
-"""
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/15-steer-roast-not-trainable/"
+LOG_DIR = "tmp/drift/19-20u-0001lr/"
 
 """
 The number of input states to the neural network.
@@ -21,19 +16,19 @@ The number of future states to verify in training.
 """
 CHECK_STEPS = 2
 
-STEER_EXPANSION = 3
+"""
+The number of basis vectors to be multiplied with
+each steer component.
+"""
+NUM_STEER_COMPONENTS = 1 + 2 * STATE_STEPS
 
 """
 The number of units and the activation functions
 used at the output of each layer of the network.
 """
-# LAYER_UNITS = [500, 1]
-X_LAYER_UNITS = [50, STEER_EXPANSION * STATE_STEPS]
-Y_LAYER_UNITS = [50, STEER_EXPANSION * STATE_STEPS]
-THETA_LAYER_UNITS = [50, STEER_EXPANSION * STATE_STEPS]
-# ACTIVATIONS = [tf.tanh, None]
-# X_ACTIVATIONS = [tf.nn.relu, None]
-# Y_ACTIVATIONS = [tf.nn.relu, None]
+X_LAYER_UNITS = [20, NUM_STEER_COMPONENTS]
+Y_LAYER_UNITS = [20, NUM_STEER_COMPONENTS]
+THETA_LAYER_UNITS = [20, NUM_STEER_COMPONENTS]
 X_ACTIVATIONS = [tf.nn.tanh, None]
 Y_ACTIVATIONS = [tf.nn.tanh, None]
 THETA_ACTIVATIONS = [tf.tanh, None]
@@ -41,18 +36,12 @@ THETA_ACTIVATIONS = [tf.tanh, None]
 """
 The initializer in the neural network.
 """
-INIT_STD_DEV = 0.001
-# INIT_STD_DEV = 0.1
-# KERNEL_INITIALIZER = tf.random_normal_initializer(stddev=INIT_STD_DEV)
 KERNEL_INITIALIZER = tf.contrib.layers.xavier_initializer()
 
 """
+The minimum relative error considered.
 """
 MIN_ERROR = 0.001
-
-"""
-"""
-INIT_WITH_FINITE_DIFFERENCES = True
 
 """
 Should we use batch normalization?
@@ -76,13 +65,12 @@ The number of elements in a training batch.
 BATCH_SIZE = 100
 
 """
-"""
-
-"""
 The learning rate of the neural network.
 """
 LEARNING_RATE = 0.0001
-# LEARNING_RATE = 0.1
+LEARNING_RATE_END_STEPS = 200000
+LEARNING_RATE_END = 0.0001
+LEARNING_RATE_POWER = 10
 
 """
 The number of states in the system.
@@ -125,8 +113,6 @@ The directories of training and validation data.
 """
 TRAIN_DIR = "./train/"
 VALIDATION_DIR = "./validation/"
-# TRAIN_DIR = "./validation/"
-# VALIDATION_DIR = "./train/"
 
 """
 The file extension for training data.

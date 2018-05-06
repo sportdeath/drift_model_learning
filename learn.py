@@ -66,30 +66,6 @@ def dense_net(input_, training, layer_units=[1], activations=[None], name="dense
 
     return hidden
 
-def feature_expansion(x, name="feature_augmentation"):
-    """
-    Expands the features of a tensor by combining an
-    input tensor with functions of itself.
-
-    Args:
-        x: The input tensor.
-        name: The name of the operation.
-
-    Returns:
-        The expanded tensor.
-    """
-
-    with tf.variable_scope(name):
-        x_expanded = tf.concat((
-                x,
-                x*x,
-                tf.sin(x),
-                tf.cos(x),
-                tf.atan(x)),
-                axis=-1)
-
-        return x_expanded
-
 def f(h, state_batch, control_batch, training, reuse, name="f"):
     """
     Compute the derivative at a state given its control input.
@@ -115,56 +91,31 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         velocity_start_n = (state_batch_n[:,1,:] - state_batch_n[:,0,:])/h
         velocity_middle_n = (state_batch_n[:,2:,:] - state_batch_n[:,:-2,:])/(2 * h)
 
-        # Get the last velocity
-        # forward_rate = velocity_middle_n[:,-1,params.X_IND]
-        # lateral_rate = velocity_middle_n[:,-1,params.Y_IND]
-        # yaw_rate = velocity_middle_n[:,-1,params.THETA_IND]
-
-        # Approximate the forward and lateral forces
-        # ddx = lateral_rate * yaw_rate
-        # ddy = -forward_rate * yaw_rate
-        # ddtheta = tf.zeros(tf.shape(ddx))
-        # ddx = tf.reshape(ddx, (-1, 1))
-        # ddy = tf.reshape(ddy, (-1, 1))
-        # ddtheta = tf.reshape(ddtheta, (-1, 1))
-
-        # print(velocity_n)
-        # steer_flipped = control_batch[:,:,params.STEER_IND] * tf.sign(velocity_n[:,:,params.X_IND])
-
         # Combine the normalized states and controls
         # into one large state.
         input_ = tf.concat((
             tf.layers.flatten(state_batch_n),
-            # tf.layers.flatten(velocity_middle_n),
-            # tf.layers.flatten(control_batch)),
             tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
-            # tf.layers.flatten(steer_flipped)),
             axis=1)
 
         # Incorporate the steering command
-        steer_scaling = tf.get_variable("steer_scaling", shape=[], dtype=tf.float32, initializer=tf.ones_initializer(), trainable=False)
-        tf.summary.scalar("steer_scaling", steer_scaling)
-        steer = steer_scaling * control_batch[:,:,params.STEER_IND]
-        steer_components = tf.concat((tf.ones(tf.shape(steer)), tf.sin(steer), tf.cos(steer)), axis=1)
+        steer = control_batch[:,:,params.STEER_IND]
+        steer_components = tf.concat((tf.ones((tf.shape(steer)[0], 1)), tf.sin(steer), tf.cos(steer)), axis=1)
 
-        print(input_)
-        # Multiply the inputs by the steered components
+        # Rotate the input into the tire's frame of referece
         input_ = tf.layers.flatten(
                 tf.tile(tf.expand_dims(steer_components, axis=1), (1, tf.shape(input_)[1], 1)) * \
                 tf.tile(tf.expand_dims(input_, axis=2), (1, 1, tf.shape(steer_components)[1])))
-        print(input_)
-        print("yolo")
 
         # Use a separate neural net to compute each state variable
         dx = dense_net(input_, layer_units=params.X_LAYER_UNITS, activations=params.X_ACTIVATIONS, training=training, reuse=reuse, name="ddx_net")
         dy = dense_net(input_, layer_units=params.Y_LAYER_UNITS, activations=params.Y_ACTIVATIONS, training=training, reuse=reuse, name="ddy_net")
         dtheta = dense_net(input_, layer_units=params.THETA_LAYER_UNITS, activations=params.THETA_ACTIVATIONS, training=training, reuse=reuse, name="ddtheta_net")
 
+        # Change coordinate spaces again
         dx = tf.reduce_sum(steer_components * dx, axis=1)
         dy = tf.reduce_sum(steer_components * dy, axis=1)
         dtheta = tf.reduce_sum(steer_components * dtheta, axis=1)
-        print(dx, dy, dtheta)
-        print("yolo")
 
         # Here is the normalized data
         dstate_batch_n = tf.stack((dx, dy, dtheta), axis=1)
@@ -186,9 +137,20 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
 
 def compute_loss(h, state_batch, control_batch, state_check_batch, control_check_batch, training, reuse=False):
     """
+    Iterates a state using the dynamics functions and
+    compares it to future states to determine the error.
+
+    Args:
+        h: The time step.
+        state_batch: The input state tensor.
+        control_batch: The input control tensor.
+        state_check_batch: The future states to verify
+        control_check_batch: The future controls to use as further input.
+        training: A boolean tensor that is true iff we are training the network.
+        reuse: True if we are reusing old network weights.
     """
+
     ts = time_stepping.RungeKutta(f)
-    # ts = time_stepping.ForwardEuler(f)
 
     # Integrate
     i, next_state_batch, next_control_batch = ts.integrate(
@@ -202,7 +164,6 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error = state_check_batch[:,-1] - next_state_batch[:,-1]
     error_relative = error/(tf.abs(state_check_batch[:,-1] - state_batch[:,-1]) + params.MIN_ERROR)
     loss = tf.reduce_sum(tf.square(error_relative))
-    # loss = tf.reduce_sum(tf.abs(error))
 
     # Write for summaries
     tf.summary.scalar("loss", loss)
@@ -255,15 +216,11 @@ if __name__ == "__main__":
     # Initialize the learning rate
     global_step = tf.Variable(0, trainable=False)
     learning_rate = tf.train.polynomial_decay(
-            # params.LEARNING_RATE,
-            0.01,
+            params.LEARNING_RATE,
             global_step,
-            200000,
-            0.0001,
-            power=10)
-            # LEARNING_RATE_END_STEPS,
-            # LEARNING_RATE_END,
-            # power=LEARNING_RATE_POWER)
+            params.LEARNING_RATE_END_STEPS,
+            params.LEARNING_RATE_END,
+            power=params.LEARNING_RATE_POWER)
     tf.summary.scalar("learning_rate", learning_rate)
 
     # Minimize the loss function
