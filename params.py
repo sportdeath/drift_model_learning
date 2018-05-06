@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/19-20u-0001lr/"
+LOG_DIR = "tmp/drift/20-single-control-euler-new-data/"
 
 """
 The number of input states to the neural network.
@@ -14,13 +14,13 @@ STATE_STEPS = 4
 """
 The number of future states to verify in training.
 """
-CHECK_STEPS = 2
+CHECK_STEPS = 1
 
 """
 The number of basis vectors to be multiplied with
 each steer component.
 """
-NUM_STEER_COMPONENTS = 1 + 2 * STATE_STEPS
+NUM_STEER_COMPONENTS = 3
 
 """
 The number of units and the activation functions
