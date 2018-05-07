@@ -95,11 +95,13 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         # into one large state.
         input_ = tf.concat((
             tf.layers.flatten(state_batch_n),
-            tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
+            # tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
+            tf.layers.flatten(control_batch[:,-1:,params.THROTTLE_IND])),
             axis=1)
 
         # Incorporate the steering command
         steer = control_batch[:,:,params.STEER_IND]
+        steer = control_batch[:,-1:,params.STEER_IND]
         steer_components = tf.concat((tf.ones((tf.shape(steer)[0], 1)), tf.sin(steer), tf.cos(steer)), axis=1)
 
         # Rotate the input into the tire's frame of referece

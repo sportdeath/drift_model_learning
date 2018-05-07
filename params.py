@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/19-20u-0001lr/"
+LOG_DIR = "tmp/drift/28-single-control-input/"
 
 """
 The number of input states to the neural network.
@@ -20,7 +20,8 @@ CHECK_STEPS = 2
 The number of basis vectors to be multiplied with
 each steer component.
 """
-NUM_STEER_COMPONENTS = 1 + 2 * STATE_STEPS
+# NUM_STEER_COMPONENTS = 1 + 2 * STATE_STEPS
+NUM_STEER_COMPONENTS = 3
 
 """
 The number of units and the activation functions
@@ -68,9 +69,9 @@ BATCH_SIZE = 100
 The learning rate of the neural network.
 """
 LEARNING_RATE = 0.0001
-LEARNING_RATE_END_STEPS = 200000
-LEARNING_RATE_END = 0.0001
-LEARNING_RATE_POWER = 10
+LEARNING_RATE_END_STEPS = 2000000
+LEARNING_RATE_END = 0.00001
+LEARNING_RATE_POWER = 1
 
 """
 The number of states in the system.
