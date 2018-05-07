@@ -95,12 +95,13 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         # into one large state.
         input_ = tf.concat((
             tf.layers.flatten(state_batch_n),
-            # tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
             tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
+            # tf.layers.flatten(control_batch[:,-1:,params.THROTTLE_IND])),
             axis=1)
 
         # Incorporate the steering command
         steer = dense_net(control_batch[:,:,params.STEER_IND], layer_units=[1], activations=[None], training=training, reuse=reuse, name="steer_net")
+        # steer = 1.05*control_batch[:,-1:,params.THROTTLE_IND]
         steer_components = tf.concat((tf.ones((tf.shape(steer)[0], 1)), tf.sin(steer), tf.cos(steer)), axis=1)
 
         # Rotate the input into the tire's frame of referece
@@ -165,7 +166,9 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error = state_check_batch[:,-1] - next_state_batch[:,-1]
     error_relative = error/(tf.abs(state_check_batch[:,-1] - state_batch[:,-1]) + params.MIN_ERROR)
     # loss = tf.reduce_sum(tf.square(error_relative))
-    loss = tf.reduce_sum(tf.abs(error))
+    loss = tf.reduce_sum(tf.abs(error[:params.THETA_IND])) + \
+           10. * tf.reduce_sum(tf.abs(error[params.THETA_IND]))
+
 
     # Write for summaries
     tf.summary.scalar("loss", loss)
@@ -257,7 +260,7 @@ if __name__ == "__main__":
 
             session.run(optimizer, feed_dict=feed_dict)
 
-            if i % 100 == 0:
+            if i % 1000 == 0:
                 train_summary = session.run(summary, feed_dict=feed_dict)
 
                 feed_dict[h_ph] = 0.000000001
@@ -280,6 +283,6 @@ if __name__ == "__main__":
                 baseline_writer.add_summary(baseline_summary, i)
                 print(i)
 
-            if i % 10000 == 0:
+            if i % 30000 == 0:
                 print("Saving...")
                 saver.save(session, params.LOG_DIR + str(i) + "/model.ckpt")
