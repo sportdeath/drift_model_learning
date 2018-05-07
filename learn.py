@@ -95,12 +95,18 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         # into one large state.
         input_ = tf.concat((
             tf.layers.flatten(state_batch_n),
-            tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
-            # tf.layers.flatten(control_batch[:,-1:,params.THROTTLE_IND])),
+            # tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
+            tf.layers.flatten(control_batch[:,-1:,params.THROTTLE_IND])),
             axis=1)
 
         # Incorporate the steering command
-        steer = dense_net(control_batch[:,:,params.STEER_IND], layer_units=[1], activations=[None], training=training, reuse=reuse, name="steer_net")
+        # steer = dense_net(control_batch[:,:,params.STEER_IND], layer_units=[1], activations=[None], training=training, reuse=reuse, name="steer_net")
+        steer_scaling = tf.get_variable("steer_scaling", shape=[], dtype=tf.float32, initializer=tf.ones_initializer())
+        steer_bias = tf.get_variable("steer_bias", shape=[], dtype=tf.float32, initializer=tf.zeros_initializer())
+        if not reuse:
+            tf.summary.scalar("steer_scaling", steer_scaling)
+            tf.summary.scalar("steer_bias", steer_bias)
+        steer = steer_scaling * (control_batch[:,-1:,params.THROTTLE_IND] + steer_bias)
         # steer = 1.05*control_batch[:,-1:,params.THROTTLE_IND]
         steer_components = tf.concat((tf.ones((tf.shape(steer)[0], 1)), tf.sin(steer), tf.cos(steer)), axis=1)
 
@@ -166,9 +172,8 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error = state_check_batch[:,-1] - next_state_batch[:,-1]
     error_relative = error/(tf.abs(state_check_batch[:,-1] - state_batch[:,-1]) + params.MIN_ERROR)
     # loss = tf.reduce_sum(tf.square(error_relative))
-    loss = tf.reduce_sum(tf.abs(error[:params.THETA_IND])) + \
-           10. * tf.reduce_sum(tf.abs(error[params.THETA_IND]))
-
+    loss = tf.reduce_sum(tf.abs(error[:,:params.THETA_IND])) + \
+            10. * tf.reduce_sum(tf.abs(error[:,params.THETA_IND]))
 
     # Write for summaries
     tf.summary.scalar("loss", loss)

@@ -4,12 +4,12 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/31-3state-abs-error-big-theta-los"
+LOG_DIR = "tmp/drift/31-10state-abs-error-single-control/"
 
 """
 The number of input states to the neural network.
 """
-STATE_STEPS = 3
+STATE_STEPS = 10
 
 """
 The number of future states to verify in training.
