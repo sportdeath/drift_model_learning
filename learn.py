@@ -88,20 +88,21 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         state_batch_n = process_data.set_origin(state_batch, state_batch[:, -1])
 
         # Approximate the velocities using finite differences
-        velocity_middle_n = (state_batch_n[:,1:,:] - state_batch_n[:,:-1,:])/h
+        velocity_start_n = (state_batch_n[:,1,:] - state_batch_n[:,0,:])/h
+        velocity_middle_n = (state_batch_n[:,2:,:] - state_batch_n[:,:-2,:])/(2 * h)
 
         # Combine the normalized states and controls
         # into one large state.
         input_ = tf.concat((
             tf.layers.flatten(state_batch_n),
-            control_batch[:,-1:,params.THROTTLE_IND]),
+            tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
             axis=1)
 
         # Incorporate the steering command
-        steer = control_batch[:,-1:,params.STEER_IND]
+        steer = control_batch[:,:,params.STEER_IND]
         steer_components = tf.concat((tf.ones((tf.shape(steer)[0], 1)), tf.sin(steer), tf.cos(steer)), axis=1)
 
-        # Rotate the input into the tire's frame of reference
+        # Rotate the input into the tire's frame of referece
         input_ = tf.layers.flatten(
                 tf.tile(tf.expand_dims(steer_components, axis=1), (1, tf.shape(input_)[1], 1)) * \
                 tf.tile(tf.expand_dims(input_, axis=2), (1, 1, tf.shape(steer_components)[1])))
@@ -124,6 +125,7 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
 
         # Combine the slices
         velocity_n = tf.concat((
+                tf.expand_dims(velocity_start_n, axis=1),
                 velocity_middle_n,
                 tf.expand_dims(velocity_end_n, axis=1)), axis=1)
 
@@ -148,8 +150,7 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
         reuse: True if we are reusing old network weights.
     """
 
-    # ts = time_stepping.RungeKutta(f)
-    ts = time_stepping.ForwardEuler(f)
+    ts = time_stepping.RungeKutta(f)
 
     # Integrate
     i, next_state_batch, next_control_batch = ts.integrate(

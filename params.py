@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/24-single-control-euler-new-data-fixed-smallerlr/"
+LOG_DIR = "tmp/drift/19-20u-0001lr/"
 
 """
 The number of input states to the neural network.
@@ -14,13 +14,13 @@ STATE_STEPS = 4
 """
 The number of future states to verify in training.
 """
-CHECK_STEPS = 1
+CHECK_STEPS = 2
 
 """
 The number of basis vectors to be multiplied with
 each steer component.
 """
-NUM_STEER_COMPONENTS = 3
+NUM_STEER_COMPONENTS = 1 + 2 * STATE_STEPS
 
 """
 The number of units and the activation functions
@@ -41,7 +41,7 @@ KERNEL_INITIALIZER = tf.contrib.layers.xavier_initializer()
 """
 The minimum relative error considered.
 """
-MIN_ERROR = 0.0005
+MIN_ERROR = 0.001
 
 """
 Should we use batch normalization?
@@ -68,9 +68,9 @@ BATCH_SIZE = 100
 The learning rate of the neural network.
 """
 LEARNING_RATE = 0.0001
-LEARNING_RATE_END_STEPS = 2000000
-LEARNING_RATE_END = 0.00001
-LEARNING_RATE_POWER = 1
+LEARNING_RATE_END_STEPS = 200000
+LEARNING_RATE_END = 0.0001
+LEARNING_RATE_POWER = 10
 
 """
 The number of states in the system.
