@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/20-single-control-euler-new-data/"
+LOG_DIR = "tmp/drift/24-single-control-euler-new-data-fixed-smallerlr/"
 
 """
 The number of input states to the neural network.
@@ -41,7 +41,7 @@ KERNEL_INITIALIZER = tf.contrib.layers.xavier_initializer()
 """
 The minimum relative error considered.
 """
-MIN_ERROR = 0.001
+MIN_ERROR = 0.0005
 
 """
 Should we use batch normalization?
@@ -68,9 +68,9 @@ BATCH_SIZE = 100
 The learning rate of the neural network.
 """
 LEARNING_RATE = 0.0001
-LEARNING_RATE_END_STEPS = 200000
-LEARNING_RATE_END = 0.0001
-LEARNING_RATE_POWER = 10
+LEARNING_RATE_END_STEPS = 2000000
+LEARNING_RATE_END = 0.00001
+LEARNING_RATE_POWER = 1
 
 """
 The number of states in the system.

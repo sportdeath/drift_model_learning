@@ -76,7 +76,7 @@ def read_chunk(file_path):
 
         # Change theta = 0 to point in the positive x direction
         # and unwrap the angles
-        states[:, params.THETA_IND] += np.pi/2.
+        # states[:, params.THETA_IND] += np.pi/2.
         states[:, params.THETA_IND] = np.unwrap(states[:, 2])
 
         # Normalize the steering angle around 0
