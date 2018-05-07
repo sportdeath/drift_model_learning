@@ -97,8 +97,7 @@ if __name__ == "__main__":
     """
     import plotting
 
-    ind = 5
+    ind = 2
     t, state, control, p = read_chunks(params.TRAIN_DIR)
-    plotting.plot_vectors([(0, control[ind][:,params.THROTTLE_IND])],title="Throttle")
-    plotting.plot_vectors([(0, control[ind][:,params.STEER_IND])],title="Steer")
-    plotting.plot_vectors([(0, state[ind][:,params.THETA_IND])],title="THeta")
+    plotting.plot_vectors([(0, control[ind][:,params.THROTTLE_IND]), (0, state[ind][:,params.X_IND]), (0, state[ind][:,params.Y_IND])],title="Throttle and position")
+    plotting.plot_vectors([(0, control[ind][:,params.STEER_IND]), (0, state[ind][:,params.THETA_IND])],title="Steer and theta")
