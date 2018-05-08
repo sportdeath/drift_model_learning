@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/32-6state-abs-error-single-control/"
+LOG_DIR = "tmp/drift/32-6state-abs-error-single-control-no-steer-bias/"
 
 """
 The number of input states to the neural network.
