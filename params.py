@@ -4,12 +4,12 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/33-4state-abs-error-single-control-no-steer-bias-scale/"
+LOG_DIR = "tmp/drift/34-3state-abs-error-single-bias-scale/"
 
 """
 The number of input states to the neural network.
 """
-STATE_STEPS = 4
+STATE_STEPS = 3
 
 """
 The number of future states to verify in training.

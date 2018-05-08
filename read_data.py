@@ -80,7 +80,7 @@ def read_chunk(file_path):
         states[:, params.THETA_IND] = np.unwrap(states[:, 2])
 
         # Normalize the steering angle around 0
-        controls[:, params.STEER_IND] -= 0.52
+        controls[:, params.STEER_IND] -= 0.537
 
         # Scale all the states for normalization
         states[:, params.X_IND] /= params.X_SCALING
