@@ -126,11 +126,18 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         dy = tf.reduce_sum(steer_components * dy, axis=1)
         dtheta = tf.reduce_sum(steer_components * dtheta, axis=1)
 
+
         # Here is the normalized data
         dstate_batch_n = tf.stack((dx, dy, dtheta), axis=1)
 
         # Correct the end velocity using the learned model
-        velocity_end_n = velocity_middle_n[:,-1,:] + dstate_batch_n
+        velocity_end_n_prev = velocity_middle_n[:,-1,:]
+        velocity_end_n = velocity_end_n_prev + dstate_batch_n
+
+        # We want the system to deaccelerate
+        # |velocity_end_n| < |velocity_end_n_prev|
+        stability_loss = tf.reduce_sum(tf.maximum(dstate_batch_n * (dstate_batch_n + 2 * velocity_end_n_prev), 0.))
+        tf.add_to_collection("stability_losses", stability_loss)
 
         # Combine the slices
         velocity_n = tf.concat((
@@ -172,12 +179,16 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
 
     error = state_check_batch[:,-1] - next_state_batch[:,-1]
     error_relative = error/(tf.abs(state_check_batch[:,-1] - state_batch[:,-1]) + params.MIN_ERROR)
-    # loss = tf.reduce_sum(tf.square(error_relative))
-    loss = tf.reduce_sum(tf.abs(error[:,:params.THETA_IND])) + \
-            10. * tf.reduce_sum(tf.abs(error[:,params.THETA_IND]))
+    error_loss = tf.reduce_sum(tf.abs(error_relative))
+
+    stability_loss = tf.reduce_sum(tf.get_collection("stability_losses"))
+
+    loss = error_loss + 0.01 * stability_loss
 
     # Write for summaries
     tf.summary.scalar("loss", loss)
+    tf.summary.scalar("stability_loss", stability_loss)
+    tf.summary.scalar("error_loss", error_loss)
     tf.summary.scalar("x_loss", tf.reduce_mean(params.X_SCALING * tf.abs(error[:,params.X_IND])))
     tf.summary.scalar("y_loss", tf.reduce_mean(params.X_SCALING * tf.abs(error[:,params.Y_IND])))
     tf.summary.scalar("theta_loss", tf.reduce_mean(params.THETA_SCALING * tf.abs(error[:,params.THETA_IND])))
