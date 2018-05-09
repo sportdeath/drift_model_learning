@@ -89,7 +89,8 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
 
         # Approximate the velocities using finite differences
         velocity_start_n = (state_batch_n[:,1,:] - state_batch_n[:,0,:])/h
-        velocity_middle_n = (state_batch_n[:,2:,:] - state_batch_n[:,:-2,:])/(2 * h)
+        # velocity_middle_n = (state_batch_n[:,2:,:] - state_batch_n[:,:-2,:])/(2 * h)
+        velocity_middle_n = (state_batch_n[:,2:,:] - state_batch_n[:,1:-1,:])/h
 
         # Combine the normalized states and controls
         # into one large state.
@@ -166,24 +167,34 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
         reuse: True if we are reusing old network weights.
     """
 
-    ts = time_stepping.RungeKutta(f)
+    # ts = time_stepping.RungeKutta(f)
+    ts = time_stepping.ForwardEuler(f)
 
     # Integrate
-    i, next_state_batch, next_control_batch = ts.integrate(
-            0, h, 
-            state_batch, 
-            control_batch, 
-            control_check_batch, 
-            training, 
-            reuse)
+    i = 0
+    next_state_batch = state_batch
+    next_control_batch = control_batch
+    error = 0
+    while i < params.CHECK_STEPS:
+        if i > 0:
+            reuse = True
 
-    error = state_check_batch[:,-1] - next_state_batch[:,-1]
+        i, next_state_batch, next_control_batch = ts.integrate(
+                i, h, 
+                next_state_batch, 
+                next_control_batch, 
+                control_check_batch, 
+                training,
+                reuse)
+
+        error = error + tf.abs(state_check_batch[:,i-1] - next_state_batch[:,-1])
+
     error_relative = error/(tf.abs(state_check_batch[:,-1] - state_batch[:,-1]) + params.MIN_ERROR)
-    error_loss = tf.reduce_sum(tf.abs(error_relative))
+    error_loss = tf.reduce_sum(error)
 
     stability_loss = tf.reduce_sum(tf.get_collection("stability_losses"))
 
-    loss = error_loss + 0.05 * stability_loss
+    loss = error_loss # + 0.01 * stability_loss
 
     # Write for summaries
     tf.summary.scalar("loss", loss)

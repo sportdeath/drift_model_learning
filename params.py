@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/35-3state-abs-error-dense-net-stability-loss-less-single-control/"
+LOG_DIR = "tmp/drift/35-3state-abs-error-dense-net-single-control-4check-multiple-losses-forward-euler/"
 
 """
 The number of input states to the neural network.
@@ -14,7 +14,7 @@ STATE_STEPS = 3
 """
 The number of future states to verify in training.
 """
-CHECK_STEPS = 2
+CHECK_STEPS = 4
 
 """
 The number of basis vectors to be multiplied with
@@ -63,7 +63,7 @@ KEEP_PROP = 0.7
 """
 The number of elements in a training batch.
 """
-BATCH_SIZE = 100
+BATCH_SIZE = 256
 
 """
 The learning rate of the neural network.
