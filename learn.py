@@ -185,7 +185,7 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error_relative = error/(error_base + params.MIN_ERROR)
     error_loss = tf.reduce_sum(error_relative)
 
-    stability_regularizer = 0.1 * tf.reduce_sum(tf.get_collection("stability_losses"))
+    stability_regularizer = 1.0 * tf.reduce_sum(tf.get_collection("stability_losses"))
     # regularization_loss = tf.losses.get_regularization_loss()
     velocity_regularizer = 0.001 * tf.reduce_sum(tf.get_collection("velocity_losses"))
 
