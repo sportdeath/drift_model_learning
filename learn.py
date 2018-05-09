@@ -177,9 +177,10 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
             training, 
             reuse)
 
-    error = state_check_batch[:,-1] - next_state_batch[:,-1]
-    error_relative = error/(tf.abs(state_check_batch[:,-1] - state_batch[:,-1]) + params.MIN_ERROR)
-    error_loss = tf.reduce_sum(tf.abs(error_relative))
+    error = tf.abs(state_check_batch - next_state_batch[:,-params.CHECK_STEPS:])
+    error_base = tf.abs(state_check_batch - tf.concat((state_batch, state_check_batch), axis=1)[:,-(params.CHECK_STEPS+1):-1])
+    error_relative = error/(error_base + params.MIN_ERROR)
+    error_loss = tf.reduce_sum(error_relative)
 
     stability_loss = tf.reduce_sum(tf.get_collection("stability_losses"))
 
@@ -189,12 +190,12 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     tf.summary.scalar("loss", loss)
     tf.summary.scalar("stability_loss", stability_loss)
     tf.summary.scalar("error_loss", error_loss)
-    tf.summary.scalar("x_loss", tf.reduce_mean(params.X_SCALING * tf.abs(error[:,params.X_IND])))
-    tf.summary.scalar("y_loss", tf.reduce_mean(params.X_SCALING * tf.abs(error[:,params.Y_IND])))
-    tf.summary.scalar("theta_loss", tf.reduce_mean(params.THETA_SCALING * tf.abs(error[:,params.THETA_IND])))
-    tf.summary.scalar("x_loss_rel", tf.reduce_mean(tf.abs(error_relative[:,params.X_IND])))
-    tf.summary.scalar("y_loss_rel", tf.reduce_mean(tf.abs(error_relative[:,params.Y_IND])))
-    tf.summary.scalar("theta_loss_rel", tf.reduce_mean(tf.abs(error_relative[:,params.THETA_IND])))
+    tf.summary.scalar("x_loss", tf.reduce_mean(params.X_SCALING * error[:,:,params.X_IND]))
+    tf.summary.scalar("y_loss", tf.reduce_mean(params.Y_SCALING * error[:,:,params.Y_IND]))
+    tf.summary.scalar("theta_loss", tf.reduce_mean(params.THETA_SCALING * error[:,:,params.THETA_IND]))
+    tf.summary.scalar("x_loss_rel", tf.reduce_mean(error_relative[:,:,params.X_IND]))
+    tf.summary.scalar("y_loss_rel", tf.reduce_mean(error_relative[:,:,params.Y_IND]))
+    tf.summary.scalar("theta_loss_rel", tf.reduce_mean(error_relative[:,:,params.THETA_IND]))
 
     return loss
 
