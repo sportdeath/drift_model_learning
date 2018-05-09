@@ -36,6 +36,7 @@ def dense_net(input_, training, layer_units=[1], activations=[None], name="dense
                     units=num_units,
                     activation=activations[i],
                     kernel_initializer=params.KERNEL_INITIALIZER,
+                    kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=0.1),
                     name=layer_name,
                     reuse=reuse)
 
@@ -95,12 +96,12 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         # into one large state.
         input_ = tf.concat((
             tf.layers.flatten(state_batch_n),
-            tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
-            # tf.layers.flatten(control_batch[:,-1:,params.THROTTLE_IND])),
+            # tf.layers.flatten(control_batch[:,:,params.THROTTLE_IND])),
+            tf.layers.flatten(control_batch[:,-1:,params.THROTTLE_IND])),
             axis=1)
 
         # Incorporate the steering command
-        steer = dense_net(control_batch[:,:,params.STEER_IND], layer_units=[1], activations=[None], training=training, reuse=reuse, name="steer_net")
+        # steer = dense_net(control_batch[:,:,params.STEER_IND], layer_units=[1], activations=[None], training=training, reuse=reuse, name="steer_net")
         # steer_scaling = tf.get_variable("steer_scaling", shape=[], dtype=tf.float32, initializer=tf.ones_initializer())
         # steer_bias = tf.get_variable("steer_bias", shape=[], dtype=tf.float32, initializer=tf.zeros_initializer())
         # steer_bias = 0.
@@ -108,7 +109,7 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
             # tf.summary.scalar("steer_scaling", steer_scaling)
             # tf.summary.scalar("steer_bias", steer_bias)
         # steer = steer_scaling * control_batch[:,-1:,params.THROTTLE_IND] + steer_bias
-        # steer = 1.05*control_batch[:,-1:,params.THROTTLE_IND]
+        steer = 1.05*control_batch[:,-1:,params.THROTTLE_IND]
         steer_components = tf.concat((tf.ones((tf.shape(steer)[0], 1)), tf.sin(steer), tf.cos(steer)), axis=1)
 
         # Rotate the input into the tire's frame of referece
@@ -183,12 +184,14 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error_loss = tf.reduce_sum(error_relative)
 
     stability_loss = tf.reduce_sum(tf.get_collection("stability_losses"))
+    regularization_loss = tf.losses.get_regularization_loss()
 
-    loss = error_loss + 0.01 * stability_loss
+    loss = error_loss + 0.01 * stability_loss + 0.01 * regularization_loss
 
     # Write for summaries
     tf.summary.scalar("loss", loss)
     tf.summary.scalar("stability_loss", stability_loss)
+    tf.summary.scalar("regularization_loss", regularization_loss)
     tf.summary.scalar("error_loss", error_loss)
     tf.summary.scalar("x_loss", tf.reduce_mean(params.X_SCALING * error[:,:,params.X_IND]))
     tf.summary.scalar("y_loss", tf.reduce_mean(params.Y_SCALING * error[:,:,params.Y_IND]))
@@ -261,7 +264,7 @@ if __name__ == "__main__":
         train_writer = tf.summary.FileWriter(params.LOG_DIR + "train", session.graph)
         validation_writer = tf.summary.FileWriter(params.LOG_DIR + "validation")
         baseline_writer = tf.summary.FileWriter(params.LOG_DIR + "baseline")
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(max_to_keep=1000)
 
         for i in range(2000000):
             # Make a random batch
