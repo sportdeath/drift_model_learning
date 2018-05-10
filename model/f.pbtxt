@@ -1,0 +1,10876 @@
+node {
+  name: "states"
+  op: "Placeholder"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 9
+        }
+      }
+    }
+  }
+}
+node {
+  name: "controls"
+  op: "Placeholder"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 2
+        }
+      }
+    }
+  }
+}
+node {
+  name: "Reshape/shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\003\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "Reshape"
+  op: "Reshape"
+  input: "states"
+  input: "Reshape/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "Reshape_1/shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "Reshape_1"
+  op: "Reshape"
+  input: "controls"
+  input: "Reshape_1/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\377\377\377\377"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice"
+  op: "StridedSlice"
+  input: "Reshape"
+  input: "time_stepping/f/strided_slice/stack"
+  input: "time_stepping/f/strided_slice/stack_1"
+  input: "time_stepping/f/strided_slice/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice"
+  op: "StridedSlice"
+  input: "time_stepping/f/strided_slice"
+  input: "time_stepping/f/normalize_batch/strided_slice/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Neg"
+  op: "Neg"
+  input: "time_stepping/f/normalize_batch/strided_slice"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Cos"
+  op: "Cos"
+  input: "time_stepping/f/normalize_batch/Neg"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_1/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_1/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_1/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_1"
+  op: "StridedSlice"
+  input: "time_stepping/f/strided_slice"
+  input: "time_stepping/f/normalize_batch/strided_slice_1/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice_1/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice_1/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Neg_1"
+  op: "Neg"
+  input: "time_stepping/f/normalize_batch/strided_slice_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Sin"
+  op: "Sin"
+  input: "time_stepping/f/normalize_batch/Neg_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Neg_2"
+  op: "Neg"
+  input: "time_stepping/f/normalize_batch/Sin"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/stack"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch/Cos"
+  input: "time_stepping/f/normalize_batch/Neg_2"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/stack_1"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch/Sin"
+  input: "time_stepping/f/normalize_batch/Cos"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/stack_2"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch/stack"
+  input: "time_stepping/f/normalize_batch/stack_1"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/ExpandDims/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/ExpandDims"
+  op: "ExpandDims"
+  input: "time_stepping/f/normalize_batch/stack_2"
+  input: "time_stepping/f/normalize_batch/ExpandDims/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\003\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_2/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_2/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_2/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_2"
+  op: "StridedSlice"
+  input: "time_stepping/f/normalize_batch/Shape"
+  input: "time_stepping/f/normalize_batch/strided_slice_2/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice_2/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice_2/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Tile/multiples/0"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Tile/multiples/2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Tile/multiples/3"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Tile/multiples"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch/Tile/multiples/0"
+  input: "time_stepping/f/normalize_batch/strided_slice_2"
+  input: "time_stepping/f/normalize_batch/Tile/multiples/2"
+  input: "time_stepping/f/normalize_batch/Tile/multiples/3"
+  attr {
+    key: "N"
+    value {
+      i: 4
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Tile"
+  op: "Tile"
+  input: "time_stepping/f/normalize_batch/ExpandDims"
+  input: "time_stepping/f/normalize_batch/Tile/multiples"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tmultiples"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_3/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_3/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_3/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_3"
+  op: "StridedSlice"
+  input: "Reshape"
+  input: "time_stepping/f/normalize_batch/strided_slice_3/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice_3/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice_3/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 4
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_4/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_4/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_4/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_4"
+  op: "StridedSlice"
+  input: "Reshape"
+  input: "time_stepping/f/normalize_batch/strided_slice_4/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice_4/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice_4/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 4
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_5/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_5/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_5/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_5"
+  op: "StridedSlice"
+  input: "Reshape"
+  input: "time_stepping/f/normalize_batch/strided_slice_5/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice_5/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice_5/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 4
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_6/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_6/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_6/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_6"
+  op: "StridedSlice"
+  input: "time_stepping/f/strided_slice"
+  input: "time_stepping/f/normalize_batch/strided_slice_6/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice_6/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice_6/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Reshape/shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\377\377\377\377\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Reshape"
+  op: "Reshape"
+  input: "time_stepping/f/normalize_batch/strided_slice_6"
+  input: "time_stepping/f/normalize_batch/Reshape/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/sub"
+  op: "Sub"
+  input: "time_stepping/f/normalize_batch/strided_slice_3"
+  input: "time_stepping/f/normalize_batch/Reshape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_7/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_7/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_7/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_7"
+  op: "StridedSlice"
+  input: "time_stepping/f/strided_slice"
+  input: "time_stepping/f/normalize_batch/strided_slice_7/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice_7/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice_7/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Reshape_1/shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\377\377\377\377\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Reshape_1"
+  op: "Reshape"
+  input: "time_stepping/f/normalize_batch/strided_slice_7"
+  input: "time_stepping/f/normalize_batch/Reshape_1/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/sub_1"
+  op: "Sub"
+  input: "time_stepping/f/normalize_batch/strided_slice_4"
+  input: "time_stepping/f/normalize_batch/Reshape_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_8/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_8/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_8/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_8"
+  op: "StridedSlice"
+  input: "time_stepping/f/strided_slice"
+  input: "time_stepping/f/normalize_batch/strided_slice_8/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice_8/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice_8/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Reshape_2/shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\377\377\377\377\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/Reshape_2"
+  op: "Reshape"
+  input: "time_stepping/f/normalize_batch/strided_slice_8"
+  input: "time_stepping/f/normalize_batch/Reshape_2/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/sub_2"
+  op: "Sub"
+  input: "time_stepping/f/normalize_batch/strided_slice_5"
+  input: "time_stepping/f/normalize_batch/Reshape_2"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/stack_3"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch/sub"
+  input: "time_stepping/f/normalize_batch/sub_1"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/ExpandDims_1/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 3
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/ExpandDims_1"
+  op: "ExpandDims"
+  input: "time_stepping/f/normalize_batch/stack_3"
+  input: "time_stepping/f/normalize_batch/ExpandDims_1/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/MatMul"
+  op: "BatchMatMul"
+  input: "time_stepping/f/normalize_batch/Tile"
+  input: "time_stepping/f/normalize_batch/ExpandDims_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "adj_x"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "adj_y"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_9/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 4
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_9/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 4
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_9/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 4
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/strided_slice_9"
+  op: "StridedSlice"
+  input: "time_stepping/f/normalize_batch/MatMul"
+  input: "time_stepping/f/normalize_batch/strided_slice_9/stack"
+  input: "time_stepping/f/normalize_batch/strided_slice_9/stack_1"
+  input: "time_stepping/f/normalize_batch/strided_slice_9/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 7
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 7
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 8
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/ExpandDims_2/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/ExpandDims_2"
+  op: "ExpandDims"
+  input: "time_stepping/f/normalize_batch/sub_2"
+  input: "time_stepping/f/normalize_batch/ExpandDims_2/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/concat/axis"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch/concat"
+  op: "ConcatV2"
+  input: "time_stepping/f/normalize_batch/strided_slice_9"
+  input: "time_stepping/f/normalize_batch/ExpandDims_2"
+  input: "time_stepping/f/normalize_batch/concat/axis"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_1/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\001\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_1/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\002\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_1/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_1"
+  op: "StridedSlice"
+  input: "time_stepping/f/normalize_batch/concat"
+  input: "time_stepping/f/strided_slice_1/stack"
+  input: "time_stepping/f/strided_slice_1/stack_1"
+  input: "time_stepping/f/strided_slice_1/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 5
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 5
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_2/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_2/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\001\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_2/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_2"
+  op: "StridedSlice"
+  input: "time_stepping/f/normalize_batch/concat"
+  input: "time_stepping/f/strided_slice_2/stack"
+  input: "time_stepping/f/strided_slice_2/stack_1"
+  input: "time_stepping/f/strided_slice_2/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 5
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 5
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/sub"
+  op: "Sub"
+  input: "time_stepping/f/strided_slice_1"
+  input: "time_stepping/f/strided_slice_2"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/truediv/y"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.008333444595336914
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/truediv"
+  op: "RealDiv"
+  input: "time_stepping/f/sub"
+  input: "time_stepping/f/truediv/y"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_3/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\002\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_3/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_3/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_3"
+  op: "StridedSlice"
+  input: "time_stepping/f/normalize_batch/concat"
+  input: "time_stepping/f/strided_slice_3/stack"
+  input: "time_stepping/f/strided_slice_3/stack_1"
+  input: "time_stepping/f/strided_slice_3/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 5
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 7
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_4/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_4/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\376\377\377\377\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_4/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_4"
+  op: "StridedSlice"
+  input: "time_stepping/f/normalize_batch/concat"
+  input: "time_stepping/f/strided_slice_4/stack"
+  input: "time_stepping/f/strided_slice_4/stack_1"
+  input: "time_stepping/f/strided_slice_4/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 7
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 5
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/sub_1"
+  op: "Sub"
+  input: "time_stepping/f/strided_slice_3"
+  input: "time_stepping/f/strided_slice_4"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/truediv_1/y"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.016666889190673828
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/truediv_1"
+  op: "RealDiv"
+  input: "time_stepping/f/sub_1"
+  input: "time_stepping/f/truediv_1/y"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten/Shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\003\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten/strided_slice/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten/strided_slice/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten/strided_slice/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten/strided_slice"
+  op: "StridedSlice"
+  input: "time_stepping/f/flatten/Shape"
+  input: "time_stepping/f/flatten/strided_slice/stack"
+  input: "time_stepping/f/flatten/strided_slice/stack_1"
+  input: "time_stepping/f/flatten/strided_slice/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten/Reshape/shape/1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: -1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten/Reshape/shape"
+  op: "Pack"
+  input: "time_stepping/f/flatten/strided_slice"
+  input: "time_stepping/f/flatten/Reshape/shape/1"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten/Reshape"
+  op: "Reshape"
+  input: "time_stepping/f/normalize_batch/concat"
+  input: "time_stepping/f/flatten/Reshape/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_5/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\377\377\377\377\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_5/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_5/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_5"
+  op: "StridedSlice"
+  input: "Reshape_1"
+  input: "time_stepping/f/strided_slice_5/stack"
+  input: "time_stepping/f/strided_slice_5/stack_1"
+  input: "time_stepping/f/strided_slice_5/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 4
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_1/Shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_1/strided_slice/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_1/strided_slice/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_1/strided_slice/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_1/strided_slice"
+  op: "StridedSlice"
+  input: "time_stepping/f/flatten_1/Shape"
+  input: "time_stepping/f/flatten_1/strided_slice/stack"
+  input: "time_stepping/f/flatten_1/strided_slice/stack_1"
+  input: "time_stepping/f/flatten_1/strided_slice/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_1/Reshape/shape/1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: -1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_1/Reshape/shape"
+  op: "Pack"
+  input: "time_stepping/f/flatten_1/strided_slice"
+  input: "time_stepping/f/flatten_1/Reshape/shape/1"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_1/Reshape"
+  op: "Reshape"
+  input: "time_stepping/f/strided_slice_5"
+  input: "time_stepping/f/flatten_1/Reshape/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/concat/axis"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/concat"
+  op: "ConcatV2"
+  input: "time_stepping/f/flatten/Reshape"
+  input: "time_stepping/f/flatten_1/Reshape"
+  input: "time_stepping/f/concat/axis"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_scaling/Initializer/ones/shape_as_tensor"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_scaling"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+          }
+        }
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_scaling/Initializer/ones/Const"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_scaling"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 1.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_scaling/Initializer/ones"
+  op: "Fill"
+  input: "time_stepping/f/steer_scaling/Initializer/ones/shape_as_tensor"
+  input: "time_stepping/f/steer_scaling/Initializer/ones/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_scaling"
+      }
+    }
+  }
+  attr {
+    key: "index_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_scaling"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_scaling"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_scaling/Assign"
+  op: "Assign"
+  input: "time_stepping/f/steer_scaling"
+  input: "time_stepping/f/steer_scaling/Initializer/ones"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_scaling"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_scaling/read"
+  op: "Identity"
+  input: "time_stepping/f/steer_scaling"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_scaling"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_bias/Initializer/zeros/shape_as_tensor"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+          }
+        }
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_bias/Initializer/zeros/Const"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_bias/Initializer/zeros"
+  op: "Fill"
+  input: "time_stepping/f/steer_bias/Initializer/zeros/shape_as_tensor"
+  input: "time_stepping/f/steer_bias/Initializer/zeros/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_bias"
+      }
+    }
+  }
+  attr {
+    key: "index_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_bias"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_bias"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_bias/Assign"
+  op: "Assign"
+  input: "time_stepping/f/steer_bias"
+  input: "time_stepping/f/steer_bias/Initializer/zeros"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_bias/read"
+  op: "Identity"
+  input: "time_stepping/f/steer_bias"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/steer_bias"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_scaling_1/tags"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/steer_scaling_1"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_scaling_1"
+  op: "ScalarSummary"
+  input: "time_stepping/f/steer_scaling_1/tags"
+  input: "time_stepping/f/steer_scaling/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_bias_1/tags"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/steer_bias_1"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/steer_bias_1"
+  op: "ScalarSummary"
+  input: "time_stepping/f/steer_bias_1/tags"
+  input: "time_stepping/f/steer_bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_6/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\377\377\377\377\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_6/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_6/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_6"
+  op: "StridedSlice"
+  input: "Reshape_1"
+  input: "time_stepping/f/strided_slice_6/stack"
+  input: "time_stepping/f/strided_slice_6/stack_1"
+  input: "time_stepping/f/strided_slice_6/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 4
+    }
+  }
+}
+node {
+  name: "time_stepping/f/mul"
+  op: "Mul"
+  input: "time_stepping/f/steer_scaling/read"
+  input: "time_stepping/f/strided_slice_6"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/add"
+  op: "Add"
+  input: "time_stepping/f/mul"
+  input: "time_stepping/f/steer_bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_7/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_7/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_7/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_7"
+  op: "StridedSlice"
+  input: "time_stepping/f/Shape"
+  input: "time_stepping/f/strided_slice_7/stack"
+  input: "time_stepping/f/strided_slice_7/stack_1"
+  input: "time_stepping/f/strided_slice_7/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ones/packed/1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ones/packed"
+  op: "Pack"
+  input: "time_stepping/f/strided_slice_7"
+  input: "time_stepping/f/ones/packed/1"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ones/Const"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 1.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ones"
+  op: "Fill"
+  input: "time_stepping/f/ones/packed"
+  input: "time_stepping/f/ones/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "index_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Sin"
+  op: "Sin"
+  input: "time_stepping/f/add"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Cos"
+  op: "Cos"
+  input: "time_stepping/f/add"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/concat_1/axis"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/concat_1"
+  op: "ConcatV2"
+  input: "time_stepping/f/ones"
+  input: "time_stepping/f/Sin"
+  input: "time_stepping/f/Cos"
+  input: "time_stepping/f/concat_1/axis"
+  attr {
+    key: "N"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims"
+  op: "ExpandDims"
+  input: "time_stepping/f/concat_1"
+  input: "time_stepping/f/ExpandDims/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Shape_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\n\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_8/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_8/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_8/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_8"
+  op: "StridedSlice"
+  input: "time_stepping/f/Shape_1"
+  input: "time_stepping/f/strided_slice_8/stack"
+  input: "time_stepping/f/strided_slice_8/stack_1"
+  input: "time_stepping/f/strided_slice_8/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile/multiples/0"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile/multiples/2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile/multiples"
+  op: "Pack"
+  input: "time_stepping/f/Tile/multiples/0"
+  input: "time_stepping/f/strided_slice_8"
+  input: "time_stepping/f/Tile/multiples/2"
+  attr {
+    key: "N"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile"
+  op: "Tile"
+  input: "time_stepping/f/ExpandDims"
+  input: "time_stepping/f/Tile/multiples"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tmultiples"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims_1/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims_1"
+  op: "ExpandDims"
+  input: "time_stepping/f/concat"
+  input: "time_stepping/f/ExpandDims_1/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Shape_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_9/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_9/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_9/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_9"
+  op: "StridedSlice"
+  input: "time_stepping/f/Shape_2"
+  input: "time_stepping/f/strided_slice_9/stack"
+  input: "time_stepping/f/strided_slice_9/stack_1"
+  input: "time_stepping/f/strided_slice_9/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile_1/multiples/0"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile_1/multiples/1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile_1/multiples"
+  op: "Pack"
+  input: "time_stepping/f/Tile_1/multiples/0"
+  input: "time_stepping/f/Tile_1/multiples/1"
+  input: "time_stepping/f/strided_slice_9"
+  attr {
+    key: "N"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile_1"
+  op: "Tile"
+  input: "time_stepping/f/ExpandDims_1"
+  input: "time_stepping/f/Tile_1/multiples"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tmultiples"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/mul_1"
+  op: "Mul"
+  input: "time_stepping/f/Tile"
+  input: "time_stepping/f/Tile_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_2/Shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\n\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_2/strided_slice/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_2/strided_slice/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_2/strided_slice/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_2/strided_slice"
+  op: "StridedSlice"
+  input: "time_stepping/f/flatten_2/Shape"
+  input: "time_stepping/f/flatten_2/strided_slice/stack"
+  input: "time_stepping/f/flatten_2/strided_slice/stack_1"
+  input: "time_stepping/f/flatten_2/strided_slice/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_2/Reshape/shape/1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: -1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_2/Reshape/shape"
+  op: "Pack"
+  input: "time_stepping/f/flatten_2/strided_slice"
+  input: "time_stepping/f/flatten_2/Reshape/shape/1"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/flatten_2/Reshape"
+  op: "Reshape"
+  input: "time_stepping/f/mul_1"
+  input: "time_stepping/f/flatten_2/Reshape/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/shape"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\036\000\000\000\024\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/min"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: -0.3464101552963257
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/max"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.3464101552963257
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/RandomUniform"
+  op: "RandomUniform"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "seed"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "seed2"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/sub"
+  op: "Sub"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/max"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/mul"
+  op: "Mul"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/RandomUniform"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/sub"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform"
+  op: "Add"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/mul"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 30
+        }
+        dim {
+          size: 20
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddx_net/dense_0/kernel"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Initializer/random_uniform"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/read"
+  op: "Identity"
+  input: "time_stepping/f/ddx_net/dense_0/kernel"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Regularizer/l2_regularizer/scale"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.10000000149011612
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Regularizer/l2_regularizer/L2Loss"
+  op: "L2Loss"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/kernel/Regularizer/l2_regularizer"
+  op: "Mul"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Regularizer/l2_regularizer/scale"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/Regularizer/l2_regularizer/L2Loss"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/bias/Initializer/zeros/shape_as_tensor"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 20
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/bias/Initializer/zeros/Const"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/bias/Initializer/zeros"
+  op: "Fill"
+  input: "time_stepping/f/ddx_net/dense_0/bias/Initializer/zeros/shape_as_tensor"
+  input: "time_stepping/f/ddx_net/dense_0/bias/Initializer/zeros/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "index_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/bias"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 20
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/bias/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddx_net/dense_0/bias"
+  input: "time_stepping/f/ddx_net/dense_0/bias/Initializer/zeros"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/bias/read"
+  op: "Identity"
+  input: "time_stepping/f/ddx_net/dense_0/bias"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_0/bias"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/MatMul"
+  op: "MatMul"
+  input: "time_stepping/f/flatten_2/Reshape"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "transpose_a"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "transpose_b"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/BiasAdd"
+  op: "BiasAdd"
+  input: "time_stepping/f/ddx_net/dense_0/MatMul"
+  input: "time_stepping/f/ddx_net/dense_0/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "data_format"
+    value {
+      s: "NHWC"
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0/Tanh"
+  op: "Tanh"
+  input: "time_stepping/f/ddx_net/dense_0/BiasAdd"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0_1/weights/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddx_net/dense_0_1/weights"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0_1/weights"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddx_net/dense_0_1/weights/tag"
+  input: "time_stepping/f/ddx_net/dense_0/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0_1/biases/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddx_net/dense_0_1/biases"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_0_1/biases"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddx_net/dense_0_1/biases/tag"
+  input: "time_stepping/f/ddx_net/dense_0/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/shape"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\024\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/min"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: -0.5107539296150208
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/max"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.5107539296150208
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/RandomUniform"
+  op: "RandomUniform"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "seed"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "seed2"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/sub"
+  op: "Sub"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/max"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/mul"
+  op: "Mul"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/RandomUniform"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/sub"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform"
+  op: "Add"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/mul"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 20
+        }
+        dim {
+          size: 3
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddx_net/dense_1/kernel"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Initializer/random_uniform"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/read"
+  op: "Identity"
+  input: "time_stepping/f/ddx_net/dense_1/kernel"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Regularizer/l2_regularizer/scale"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.10000000149011612
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Regularizer/l2_regularizer/L2Loss"
+  op: "L2Loss"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/kernel/Regularizer/l2_regularizer"
+  op: "Mul"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Regularizer/l2_regularizer/scale"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/Regularizer/l2_regularizer/L2Loss"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/bias/Initializer/zeros/shape_as_tensor"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 3
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/bias/Initializer/zeros/Const"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/bias/Initializer/zeros"
+  op: "Fill"
+  input: "time_stepping/f/ddx_net/dense_1/bias/Initializer/zeros/shape_as_tensor"
+  input: "time_stepping/f/ddx_net/dense_1/bias/Initializer/zeros/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "index_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/bias"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 3
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/bias/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddx_net/dense_1/bias"
+  input: "time_stepping/f/ddx_net/dense_1/bias/Initializer/zeros"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/bias/read"
+  op: "Identity"
+  input: "time_stepping/f/ddx_net/dense_1/bias"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddx_net/dense_1/bias"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/MatMul"
+  op: "MatMul"
+  input: "time_stepping/f/ddx_net/dense_0/Tanh"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "transpose_a"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "transpose_b"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1/BiasAdd"
+  op: "BiasAdd"
+  input: "time_stepping/f/ddx_net/dense_1/MatMul"
+  input: "time_stepping/f/ddx_net/dense_1/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "data_format"
+    value {
+      s: "NHWC"
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1_1/weights/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddx_net/dense_1_1/weights"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1_1/weights"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddx_net/dense_1_1/weights/tag"
+  input: "time_stepping/f/ddx_net/dense_1/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1_1/biases/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddx_net/dense_1_1/biases"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddx_net/dense_1_1/biases"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddx_net/dense_1_1/biases/tag"
+  input: "time_stepping/f/ddx_net/dense_1/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/shape"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\036\000\000\000\024\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/min"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: -0.3464101552963257
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/max"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.3464101552963257
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/RandomUniform"
+  op: "RandomUniform"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "seed"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "seed2"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/sub"
+  op: "Sub"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/max"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/mul"
+  op: "Mul"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/RandomUniform"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/sub"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform"
+  op: "Add"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/mul"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 30
+        }
+        dim {
+          size: 20
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddy_net/dense_0/kernel"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Initializer/random_uniform"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/read"
+  op: "Identity"
+  input: "time_stepping/f/ddy_net/dense_0/kernel"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Regularizer/l2_regularizer/scale"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.10000000149011612
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Regularizer/l2_regularizer/L2Loss"
+  op: "L2Loss"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/kernel/Regularizer/l2_regularizer"
+  op: "Mul"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Regularizer/l2_regularizer/scale"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/Regularizer/l2_regularizer/L2Loss"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/bias/Initializer/zeros/shape_as_tensor"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 20
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/bias/Initializer/zeros/Const"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/bias/Initializer/zeros"
+  op: "Fill"
+  input: "time_stepping/f/ddy_net/dense_0/bias/Initializer/zeros/shape_as_tensor"
+  input: "time_stepping/f/ddy_net/dense_0/bias/Initializer/zeros/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "index_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/bias"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 20
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/bias/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddy_net/dense_0/bias"
+  input: "time_stepping/f/ddy_net/dense_0/bias/Initializer/zeros"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/bias/read"
+  op: "Identity"
+  input: "time_stepping/f/ddy_net/dense_0/bias"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_0/bias"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/MatMul"
+  op: "MatMul"
+  input: "time_stepping/f/flatten_2/Reshape"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "transpose_a"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "transpose_b"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/BiasAdd"
+  op: "BiasAdd"
+  input: "time_stepping/f/ddy_net/dense_0/MatMul"
+  input: "time_stepping/f/ddy_net/dense_0/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "data_format"
+    value {
+      s: "NHWC"
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0/Tanh"
+  op: "Tanh"
+  input: "time_stepping/f/ddy_net/dense_0/BiasAdd"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0_1/weights/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddy_net/dense_0_1/weights"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0_1/weights"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddy_net/dense_0_1/weights/tag"
+  input: "time_stepping/f/ddy_net/dense_0/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0_1/biases/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddy_net/dense_0_1/biases"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_0_1/biases"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddy_net/dense_0_1/biases/tag"
+  input: "time_stepping/f/ddy_net/dense_0/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/shape"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\024\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/min"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: -0.5107539296150208
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/max"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.5107539296150208
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/RandomUniform"
+  op: "RandomUniform"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "seed"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "seed2"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/sub"
+  op: "Sub"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/max"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/mul"
+  op: "Mul"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/RandomUniform"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/sub"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform"
+  op: "Add"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/mul"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 20
+        }
+        dim {
+          size: 3
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddy_net/dense_1/kernel"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Initializer/random_uniform"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/read"
+  op: "Identity"
+  input: "time_stepping/f/ddy_net/dense_1/kernel"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Regularizer/l2_regularizer/scale"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.10000000149011612
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Regularizer/l2_regularizer/L2Loss"
+  op: "L2Loss"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/kernel/Regularizer/l2_regularizer"
+  op: "Mul"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Regularizer/l2_regularizer/scale"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/Regularizer/l2_regularizer/L2Loss"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/bias/Initializer/zeros/shape_as_tensor"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 3
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/bias/Initializer/zeros/Const"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/bias/Initializer/zeros"
+  op: "Fill"
+  input: "time_stepping/f/ddy_net/dense_1/bias/Initializer/zeros/shape_as_tensor"
+  input: "time_stepping/f/ddy_net/dense_1/bias/Initializer/zeros/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "index_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/bias"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 3
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/bias/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddy_net/dense_1/bias"
+  input: "time_stepping/f/ddy_net/dense_1/bias/Initializer/zeros"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/bias/read"
+  op: "Identity"
+  input: "time_stepping/f/ddy_net/dense_1/bias"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddy_net/dense_1/bias"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/MatMul"
+  op: "MatMul"
+  input: "time_stepping/f/ddy_net/dense_0/Tanh"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "transpose_a"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "transpose_b"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1/BiasAdd"
+  op: "BiasAdd"
+  input: "time_stepping/f/ddy_net/dense_1/MatMul"
+  input: "time_stepping/f/ddy_net/dense_1/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "data_format"
+    value {
+      s: "NHWC"
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1_1/weights/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddy_net/dense_1_1/weights"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1_1/weights"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddy_net/dense_1_1/weights/tag"
+  input: "time_stepping/f/ddy_net/dense_1/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1_1/biases/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddy_net/dense_1_1/biases"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddy_net/dense_1_1/biases"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddy_net/dense_1_1/biases/tag"
+  input: "time_stepping/f/ddy_net/dense_1/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/shape"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\036\000\000\000\024\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/min"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: -0.3464101552963257
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/max"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.3464101552963257
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/RandomUniform"
+  op: "RandomUniform"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "seed"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "seed2"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/sub"
+  op: "Sub"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/max"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/mul"
+  op: "Mul"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/RandomUniform"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/sub"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform"
+  op: "Add"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/mul"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 30
+        }
+        dim {
+          size: 20
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Initializer/random_uniform"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/read"
+  op: "Identity"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Regularizer/l2_regularizer/scale"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.10000000149011612
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Regularizer/l2_regularizer/L2Loss"
+  op: "L2Loss"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/kernel/Regularizer/l2_regularizer"
+  op: "Mul"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Regularizer/l2_regularizer/scale"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/Regularizer/l2_regularizer/L2Loss"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/bias/Initializer/zeros/shape_as_tensor"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 20
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/bias/Initializer/zeros/Const"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/bias/Initializer/zeros"
+  op: "Fill"
+  input: "time_stepping/f/ddtheta_net/dense_0/bias/Initializer/zeros/shape_as_tensor"
+  input: "time_stepping/f/ddtheta_net/dense_0/bias/Initializer/zeros/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "index_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/bias"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 20
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/bias/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddtheta_net/dense_0/bias"
+  input: "time_stepping/f/ddtheta_net/dense_0/bias/Initializer/zeros"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/bias/read"
+  op: "Identity"
+  input: "time_stepping/f/ddtheta_net/dense_0/bias"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_0/bias"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/MatMul"
+  op: "MatMul"
+  input: "time_stepping/f/flatten_2/Reshape"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "transpose_a"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "transpose_b"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/BiasAdd"
+  op: "BiasAdd"
+  input: "time_stepping/f/ddtheta_net/dense_0/MatMul"
+  input: "time_stepping/f/ddtheta_net/dense_0/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "data_format"
+    value {
+      s: "NHWC"
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0/Tanh"
+  op: "Tanh"
+  input: "time_stepping/f/ddtheta_net/dense_0/BiasAdd"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0_1/weights/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddtheta_net/dense_0_1/weights"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0_1/weights"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddtheta_net/dense_0_1/weights/tag"
+  input: "time_stepping/f/ddtheta_net/dense_0/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0_1/biases/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddtheta_net/dense_0_1/biases"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_0_1/biases"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddtheta_net/dense_0_1/biases/tag"
+  input: "time_stepping/f/ddtheta_net/dense_0/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/shape"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\024\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/min"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: -0.5107539296150208
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/max"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.5107539296150208
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/RandomUniform"
+  op: "RandomUniform"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "seed"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "seed2"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/sub"
+  op: "Sub"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/max"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/mul"
+  op: "Mul"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/RandomUniform"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/sub"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform"
+  op: "Add"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/mul"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform/min"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 20
+        }
+        dim {
+          size: 3
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Initializer/random_uniform"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/read"
+  op: "Identity"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Regularizer/l2_regularizer/scale"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.10000000149011612
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Regularizer/l2_regularizer/L2Loss"
+  op: "L2Loss"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/kernel/Regularizer/l2_regularizer"
+  op: "Mul"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Regularizer/l2_regularizer/scale"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/Regularizer/l2_regularizer/L2Loss"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/kernel"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/bias/Initializer/zeros/shape_as_tensor"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 3
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/bias/Initializer/zeros/Const"
+  op: "Const"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/bias/Initializer/zeros"
+  op: "Fill"
+  input: "time_stepping/f/ddtheta_net/dense_1/bias/Initializer/zeros/shape_as_tensor"
+  input: "time_stepping/f/ddtheta_net/dense_1/bias/Initializer/zeros/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "index_type"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/bias"
+  op: "VariableV2"
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "container"
+    value {
+      s: ""
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "shape"
+    value {
+      shape {
+        dim {
+          size: 3
+        }
+      }
+    }
+  }
+  attr {
+    key: "shared_name"
+    value {
+      s: ""
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/bias/Assign"
+  op: "Assign"
+  input: "time_stepping/f/ddtheta_net/dense_1/bias"
+  input: "time_stepping/f/ddtheta_net/dense_1/bias/Initializer/zeros"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/bias"
+      }
+    }
+  }
+  attr {
+    key: "use_locking"
+    value {
+      b: true
+    }
+  }
+  attr {
+    key: "validate_shape"
+    value {
+      b: true
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/bias/read"
+  op: "Identity"
+  input: "time_stepping/f/ddtheta_net/dense_1/bias"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@time_stepping/f/ddtheta_net/dense_1/bias"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/MatMul"
+  op: "MatMul"
+  input: "time_stepping/f/ddtheta_net/dense_0/Tanh"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "transpose_a"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "transpose_b"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1/BiasAdd"
+  op: "BiasAdd"
+  input: "time_stepping/f/ddtheta_net/dense_1/MatMul"
+  input: "time_stepping/f/ddtheta_net/dense_1/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "data_format"
+    value {
+      s: "NHWC"
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1_1/weights/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddtheta_net/dense_1_1/weights"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1_1/weights"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddtheta_net/dense_1_1/weights/tag"
+  input: "time_stepping/f/ddtheta_net/dense_1/kernel/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1_1/biases/tag"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "time_stepping/f/ddtheta_net/dense_1_1/biases"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ddtheta_net/dense_1_1/biases"
+  op: "HistogramSummary"
+  input: "time_stepping/f/ddtheta_net/dense_1_1/biases/tag"
+  input: "time_stepping/f/ddtheta_net/dense_1/bias/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/mul_2"
+  op: "Mul"
+  input: "time_stepping/f/concat_1"
+  input: "time_stepping/f/ddx_net/dense_1/BiasAdd"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Sum/reduction_indices"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Sum"
+  op: "Sum"
+  input: "time_stepping/f/mul_2"
+  input: "time_stepping/f/Sum/reduction_indices"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/mul_3"
+  op: "Mul"
+  input: "time_stepping/f/concat_1"
+  input: "time_stepping/f/ddy_net/dense_1/BiasAdd"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Sum_1/reduction_indices"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Sum_1"
+  op: "Sum"
+  input: "time_stepping/f/mul_3"
+  input: "time_stepping/f/Sum_1/reduction_indices"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/mul_4"
+  op: "Mul"
+  input: "time_stepping/f/concat_1"
+  input: "time_stepping/f/ddtheta_net/dense_1/BiasAdd"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Sum_2/reduction_indices"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Sum_2"
+  op: "Sum"
+  input: "time_stepping/f/mul_4"
+  input: "time_stepping/f/Sum_2/reduction_indices"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/stack"
+  op: "Pack"
+  input: "time_stepping/f/Sum"
+  input: "time_stepping/f/Sum_1"
+  input: "time_stepping/f/Sum_2"
+  attr {
+    key: "N"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_10/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\377\377\377\377\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_10/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_10/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_10"
+  op: "StridedSlice"
+  input: "time_stepping/f/truediv_1"
+  input: "time_stepping/f/strided_slice_10/stack"
+  input: "time_stepping/f/strided_slice_10/stack_1"
+  input: "time_stepping/f/strided_slice_10/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 5
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 5
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/add_1"
+  op: "Add"
+  input: "time_stepping/f/strided_slice_10"
+  input: "time_stepping/f/stack"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/mul_5/x"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 2.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/mul_5"
+  op: "Mul"
+  input: "time_stepping/f/mul_5/x"
+  input: "time_stepping/f/strided_slice_10"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/add_2"
+  op: "Add"
+  input: "time_stepping/f/stack"
+  input: "time_stepping/f/mul_5"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/mul_6"
+  op: "Mul"
+  input: "time_stepping/f/stack"
+  input: "time_stepping/f/add_2"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Maximum/y"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 0.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Maximum"
+  op: "Maximum"
+  input: "time_stepping/f/mul_6"
+  input: "time_stepping/f/Maximum/y"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Const"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Sum_3"
+  op: "Sum"
+  input: "time_stepping/f/Maximum"
+  input: "time_stepping/f/Const"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/mul_7"
+  op: "Mul"
+  input: "time_stepping/f/add_1"
+  input: "time_stepping/f/add_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Const_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Sum_4"
+  op: "Sum"
+  input: "time_stepping/f/mul_7"
+  input: "time_stepping/f/Const_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "keep_dims"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims_2/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims_2"
+  op: "ExpandDims"
+  input: "time_stepping/f/truediv"
+  input: "time_stepping/f/ExpandDims_2/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims_3/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims_3"
+  op: "ExpandDims"
+  input: "time_stepping/f/add_1"
+  input: "time_stepping/f/ExpandDims_3/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/concat_2/axis"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/concat_2"
+  op: "ConcatV2"
+  input: "time_stepping/f/ExpandDims_2"
+  input: "time_stepping/f/truediv_1"
+  input: "time_stepping/f/ExpandDims_3"
+  input: "time_stepping/f/concat_2/axis"
+  attr {
+    key: "N"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_11/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\377\377\377\377"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_11/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_11/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_11"
+  op: "StridedSlice"
+  input: "Reshape"
+  input: "time_stepping/f/strided_slice_11/stack"
+  input: "time_stepping/f/strided_slice_11/stack_1"
+  input: "time_stepping/f/strided_slice_11/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Neg"
+  op: "Neg"
+  input: "time_stepping/f/strided_slice_11"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice"
+  op: "StridedSlice"
+  input: "time_stepping/f/Neg"
+  input: "time_stepping/f/normalize_batch_1/strided_slice/stack"
+  input: "time_stepping/f/normalize_batch_1/strided_slice/stack_1"
+  input: "time_stepping/f/normalize_batch_1/strided_slice/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Neg"
+  op: "Neg"
+  input: "time_stepping/f/normalize_batch_1/strided_slice"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Cos"
+  op: "Cos"
+  input: "time_stepping/f/normalize_batch_1/Neg"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_1/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_1/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\000\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_1/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_1"
+  op: "StridedSlice"
+  input: "time_stepping/f/Neg"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_1/stack"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_1/stack_1"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_1/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 1
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Neg_1"
+  op: "Neg"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Sin"
+  op: "Sin"
+  input: "time_stepping/f/normalize_batch_1/Neg_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Neg_2"
+  op: "Neg"
+  input: "time_stepping/f/normalize_batch_1/Sin"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/stack"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch_1/Cos"
+  input: "time_stepping/f/normalize_batch_1/Neg_2"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/stack_1"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch_1/Sin"
+  input: "time_stepping/f/normalize_batch_1/Cos"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/stack_2"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch_1/stack"
+  input: "time_stepping/f/normalize_batch_1/stack_1"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/ExpandDims/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/ExpandDims"
+  op: "ExpandDims"
+  input: "time_stepping/f/normalize_batch_1/stack_2"
+  input: "time_stepping/f/normalize_batch_1/ExpandDims/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\003\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_2/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_2/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_2/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_2"
+  op: "StridedSlice"
+  input: "time_stepping/f/normalize_batch_1/Shape"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_2/stack"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_2/stack_1"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_2/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 1
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Tile/multiples/0"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Tile/multiples/2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Tile/multiples/3"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Tile/multiples"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch_1/Tile/multiples/0"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_2"
+  input: "time_stepping/f/normalize_batch_1/Tile/multiples/2"
+  input: "time_stepping/f/normalize_batch_1/Tile/multiples/3"
+  attr {
+    key: "N"
+    value {
+      i: 4
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/Tile"
+  op: "Tile"
+  input: "time_stepping/f/normalize_batch_1/ExpandDims"
+  input: "time_stepping/f/normalize_batch_1/Tile/multiples"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tmultiples"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_3/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_3/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_3/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_3"
+  op: "StridedSlice"
+  input: "time_stepping/f/concat_2"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_3/stack"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_3/stack_1"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_3/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 4
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_4/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_4/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_4/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_4"
+  op: "StridedSlice"
+  input: "time_stepping/f/concat_2"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_4/stack"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_4/stack_1"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_4/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 4
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_5/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\002\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_5/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_5/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 3
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_5"
+  op: "StridedSlice"
+  input: "time_stepping/f/concat_2"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_5/stack"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_5/stack_1"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_5/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 4
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/stack_3"
+  op: "Pack"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_3"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_4"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 2
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/ExpandDims_1/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 3
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/ExpandDims_1"
+  op: "ExpandDims"
+  input: "time_stepping/f/normalize_batch_1/stack_3"
+  input: "time_stepping/f/normalize_batch_1/ExpandDims_1/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/MatMul"
+  op: "BatchMatMul"
+  input: "time_stepping/f/normalize_batch_1/Tile"
+  input: "time_stepping/f/normalize_batch_1/ExpandDims_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "adj_x"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "adj_y"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_6/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 4
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_6/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 4
+          }
+        }
+        tensor_content: "\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_6/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 4
+          }
+        }
+        tensor_content: "\001\000\000\000\001\000\000\000\001\000\000\000\001\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/strided_slice_6"
+  op: "StridedSlice"
+  input: "time_stepping/f/normalize_batch_1/MatMul"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_6/stack"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_6/stack_1"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_6/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 7
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 7
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 8
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/ExpandDims_2/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/ExpandDims_2"
+  op: "ExpandDims"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_5"
+  input: "time_stepping/f/normalize_batch_1/ExpandDims_2/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/concat/axis"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/normalize_batch_1/concat"
+  op: "ConcatV2"
+  input: "time_stepping/f/normalize_batch_1/strided_slice_6"
+  input: "time_stepping/f/normalize_batch_1/ExpandDims_2"
+  input: "time_stepping/f/normalize_batch_1/concat/axis"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "dstates/shape"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 9
+      }
+    }
+  }
+}
+node {
+  name: "dstates"
+  op: "Reshape"
+  input: "time_stepping/f/normalize_batch_1/concat"
+  input: "dstates/shape"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tshape"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+versions {
+  producer: 26
+}
