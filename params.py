@@ -4,7 +4,7 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/39-3state-abs-error-bias-scale-stability-loss-less-check-all/"
+LOG_DIR = "tmp/drift/40-3state-single-control-no1/"
 
 """
 The number of input states to the neural network.
@@ -21,7 +21,7 @@ The number of basis vectors to be multiplied with
 each steer component.
 """
 # NUM_STEER_COMPONENTS = 1 + 2 * STATE_STEPS
-NUM_STEER_COMPONENTS = 3
+NUM_STEER_COMPONENTS = 2
 
 """
 The number of units and the activation functions
