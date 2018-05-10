@@ -6,13 +6,16 @@ To train the graph run:
 
     python3 learn.py
 
-This will periodically save checkpoints in ```tmp/SESSION_NAME/#/```.
+This will periodically save checkpoints in ```tmp/LOG_DIR/SESSION_NAME/ITERATION_#/```.
+Visualize the training by running
+
+    tensorboard --logdir=tmp/LOG_DIR
 
 ## Compiling
 
 Move a particular training checkpoint to the model folder.
 
-    mv tmp/TRAIN_NAME/ITERATION_#/* model/
+    mv tmp/LOG_DIR/SESSION_NAME/ITERATION_#/* model/
 
 Construct the execution graph by running
 
@@ -21,7 +24,7 @@ Construct the execution graph by running
 This will save a graph to ```model/f.pbtxt``` and a configuration file to ```model/f.config.pbtxt```
 
 [Install ```bazel```](https://docs.bazel.build/versions/master/install.html) if necessary.
-Clone tensorflow and build ```tfcompile``` and ```freeze_graph```.
+Clone [```tensorflow```](https://github.com/tensorflow/tensorflow) and build [```tfcompile```](https://www.tensorflow.org/performance/xla/tfcompile) and [```freeze_graph```](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/tools/freeze_graph.py).
 
     git clone https://github.com/tensorflow/tensorflow.git
     cd tensorflow
