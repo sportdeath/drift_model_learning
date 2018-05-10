@@ -110,7 +110,7 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
             # tf.summary.scalar("steer_bias", steer_bias)
         # steer = steer_scaling * control_batch[:,-1:,params.STEER_IND] + steer_bias
         steer = 1.05*control_batch[:,-1:,params.STEER_IND]
-        steer_components = tf.concat((tf.sin(steer), tf.cos(steer)), axis=1)
+        steer_components = tf.concat((tf.ones((tf.shape(steer)[0], 1)), tf.sin(steer), tf.cos(steer)), axis=1)
 
         # Rotate the input into the tire's frame of referece
         input_ = tf.layers.flatten(
@@ -186,7 +186,7 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error_loss = tf.reduce_sum(error_relative)
 
     # stability_regularizer = 0.5 * tf.reduce_sum(tf.get_collection("stability_losses"))
-    stability_regularizer = 0.2 * tf.reduce_sum(tf.get_collection("stability_losses"))
+    stability_regularizer = 0.1 * tf.reduce_sum(tf.get_collection("stability_losses"))
     # regularization_loss = tf.losses.get_regularization_loss()
     # velocity_regularizer = 0.001 * tf.reduce_sum(tf.get_collection("velocity_losses"))
 

@@ -34,8 +34,9 @@ Clone [```tensorflow```](https://github.com/tensorflow/tensorflow) and build [``
 Use ```freeze_graph``` to freeze the trained weights into the graph.
 
     cd drift_model_learning
-    ./PATH_TO_TENSORFLOW/bazel-bin/tensorflow/python/tools/freeze_graph --input_graph=model/f.pbtxt --input_checkpoint=mode/model.ckpt --output_graph=model/f_frozen.pbtxt --output_node_names=dstates
+    ./PATH_TO_TENSORFLOW/bazel-bin/tensorflow/python/tools/freeze_graph --input_graph=model/f.pbtxt --input_checkpoint=model/model.ckpt --output_node_names=dstates --output_graph=model/f_frozen.pb
+
 
 Use ```tfcompile``` to compile the frozen graph into C++ code.
 
-    ./PATH_TO_TENSORFLOW/bazel-bin/tensorflow/compiler/aot/tfcompile --graph=model/f_frozen.pbtxt --config=model/f.config.pbtxt --cpp_class="machine_learning_model::f"
+    ./PATH_TO_TENSORFLOW/bazel-bin/tensorflow/compiler/aot/tfcompile --graph=model/f_frozen.pb --config=model/f.config.pbtxt --cpp_class="machine_learning_model::f" --out_header="cpp/out.h" --out_metadata_object="cpp/out_helper.o" --out_function_object="cpp/out_model.o"
