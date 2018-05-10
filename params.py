@@ -4,12 +4,12 @@ import tensorflow as tf
 """
 The log directory for tensorboard.
 """
-LOG_DIR = "tmp/drift/40-3state-single-control-no1-fixed/"
+LOG_DIR = "tmp/drift/41-4state-single-control-no1-fixed/"
 
 """
 The number of input states to the neural network.
 """
-STATE_STEPS = 3
+STATE_STEPS = 4
 
 """
 The number of future states to verify in training.

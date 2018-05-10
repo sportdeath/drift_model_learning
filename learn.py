@@ -138,9 +138,9 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
         # We want the system to deaccelerate
         # |velocity_end_n| < |velocity_end_n_prev|
         stability_loss = tf.reduce_sum(tf.maximum(dstate_batch_n * (dstate_batch_n + 2 * velocity_end_n_prev), 0.))
-        velocity_loss = tf.reduce_sum(velocity_end_n * velocity_end_n)
+        # velocity_loss = tf.reduce_sum(velocity_end_n * velocity_end_n)
         tf.add_to_collection("stability_losses", stability_loss)
-        tf.add_to_collection("velocity_losses", velocity_loss)
+        # tf.add_to_collection("velocity_losses", velocity_loss)
 
         # Combine the slices
         velocity_n = tf.concat((
@@ -186,11 +186,11 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error_loss = tf.reduce_sum(error_relative)
 
     # stability_regularizer = 0.5 * tf.reduce_sum(tf.get_collection("stability_losses"))
-    stability_regularizer = tf.reduce_sum(tf.get_collection("stability_losses"))
+    stability_regularizer = 0.2 * tf.reduce_sum(tf.get_collection("stability_losses"))
     # regularization_loss = tf.losses.get_regularization_loss()
     # velocity_regularizer = 0.001 * tf.reduce_sum(tf.get_collection("velocity_losses"))
 
-    loss = error_loss #+ stability_regularizer #+ velocity_regularizer
+    loss = error_loss + stability_regularizer #+ velocity_regularizer
 
     # Write for summaries
     tf.summary.scalar("loss", loss)

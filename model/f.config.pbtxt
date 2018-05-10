@@ -1,0 +1,17 @@
+feed {
+    id {node_name: "states"}
+    shape {
+        dim {size: 12}
+    }
+}
+
+feed {
+    id {node_name: "controls"}
+    shape {
+        dim {size: 2}
+    }
+}
+
+fetch {
+    id {node_name: "dstates"}
+}
