@@ -102,14 +102,14 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
 
         # Incorporate the steering command
         # steer = dense_net(control_batch[:,:,params.STEER_IND], layer_units=[1], activations=[None], training=training, reuse=reuse, name="steer_net")
-        steer_scaling = tf.get_variable("steer_scaling", shape=[], dtype=tf.float32, initializer=tf.ones_initializer())
-        steer_bias = tf.get_variable("steer_bias", shape=[], dtype=tf.float32, initializer=tf.zeros_initializer())
+        # steer_scaling = tf.get_variable("steer_scaling", shape=[], dtype=tf.float32, initializer=tf.ones_initializer())
+        # steer_bias = tf.get_variable("steer_bias", shape=[], dtype=tf.float32, initializer=tf.zeros_initializer())
         # steer_bias = 0.
-        if not reuse:
-            tf.summary.scalar("steer_scaling", steer_scaling)
-            tf.summary.scalar("steer_bias", steer_bias)
-        steer = steer_scaling * control_batch[:,-1:,params.STEER_IND] + steer_bias
-        # steer = 1.05*control_batch[:,-1:,params.STEER_IND]
+        # if not reuse:
+            # tf.summary.scalar("steer_scaling", steer_scaling)
+            # tf.summary.scalar("steer_bias", steer_bias)
+        # steer = steer_scaling * control_batch[:,-1:,params.STEER_IND] + steer_bias
+        steer = 1.05*control_batch[:,-1:,params.STEER_IND]
         steer_components = tf.concat((tf.ones((tf.shape(steer)[0], 1)), tf.sin(steer), tf.cos(steer)), axis=1)
 
         # Rotate the input into the tire's frame of referece
@@ -183,14 +183,15 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error = tf.abs(state_check_batch - next_state_batch[:,-params.CHECK_STEPS:])
     error_base = tf.abs(state_check_batch - tf.concat((state_batch, state_check_batch), axis=1)[:,-(params.CHECK_STEPS+1):-1])
     error_relative = error/(error_base + params.MIN_ERROR)
-    error_loss = tf.reduce_sum(error_relative)
+    # error_loss = tf.reduce_sum(error_relative)
+    error_loss = tf.reduce_sum(error)
 
     # stability_regularizer = 0.5 * tf.reduce_sum(tf.get_collection("stability_losses"))
     stability_regularizer = 0.1 * tf.reduce_sum(tf.get_collection("stability_losses"))
     # regularization_loss = tf.losses.get_regularization_loss()
     # velocity_regularizer = 0.001 * tf.reduce_sum(tf.get_collection("velocity_losses"))
 
-    loss = error_loss + stability_regularizer #+ velocity_regularizer
+    loss = error_loss# + stability_regularizer #+ velocity_regularizer
 
     # Write for summaries
     tf.summary.scalar("loss", loss)
