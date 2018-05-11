@@ -56,8 +56,8 @@ namespace machine_learning_model {
 // Memory stats:
 //   arg bytes total:    56
 //   arg bytes aligned:  96
-//   temp bytes total:   320
-//   temp bytes aligned: 384
+//   temp bytes total:   400
+//   temp bytes aligned: 448
 class f : public tensorflow::XlaCompiledCpuFunction {
  public:
   // Number of input arguments for the compiled computation.
@@ -188,7 +188,7 @@ class f : public tensorflow::XlaCompiledCpuFunction {
 
   // Byte size of each result / temporary buffer. There are kNumTemps entries.
   static const intptr_t* TempSizes() {
-    static constexpr intptr_t kTempSizes[kNumTemps] = {48, -1, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 264};
+    static constexpr intptr_t kTempSizes[kNumTemps] = {48, -1, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 344};
     return kTempSizes;
   }
 

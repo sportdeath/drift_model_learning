@@ -3415,113 +3415,6 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/Sin"
-  op: "Sin"
-  input: "time_stepping/f/mul"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "time_stepping/f/Cos"
-  op: "Cos"
-  input: "time_stepping/f/mul"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "time_stepping/f/concat_1/axis"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-        }
-        int_val: 1
-      }
-    }
-  }
-}
-node {
-  name: "time_stepping/f/concat_1"
-  op: "ConcatV2"
-  input: "time_stepping/f/Sin"
-  input: "time_stepping/f/Cos"
-  input: "time_stepping/f/concat_1/axis"
-  attr {
-    key: "N"
-    value {
-      i: 2
-    }
-  }
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tidx"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "time_stepping/f/ExpandDims/dim"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-        }
-        int_val: 1
-      }
-    }
-  }
-}
-node {
-  name: "time_stepping/f/ExpandDims"
-  op: "ExpandDims"
-  input: "time_stepping/f/concat_1"
-  input: "time_stepping/f/ExpandDims/dim"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tdim"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
   name: "time_stepping/f/Shape"
   op: "Const"
   attr {
@@ -3540,7 +3433,7 @@ node {
             size: 2
           }
         }
-        tensor_content: "\001\000\000\000\r\000\000\000"
+        tensor_content: "\001\000\000\000\001\000\000\000"
       }
     }
   }
@@ -3564,7 +3457,7 @@ node {
             size: 1
           }
         }
-        int_val: 1
+        int_val: 0
       }
     }
   }
@@ -3588,7 +3481,7 @@ node {
             size: 1
           }
         }
-        int_val: 2
+        int_val: 1
       }
     }
   }
@@ -3668,7 +3561,7 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/Tile/multiples/0"
+  name: "time_stepping/f/ones/packed/1"
   op: "Const"
   attr {
     key: "dtype"
@@ -3689,36 +3582,14 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/Tile/multiples/2"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-        }
-        int_val: 1
-      }
-    }
-  }
-}
-node {
-  name: "time_stepping/f/Tile/multiples"
+  name: "time_stepping/f/ones/packed"
   op: "Pack"
-  input: "time_stepping/f/Tile/multiples/0"
   input: "time_stepping/f/strided_slice_7"
-  input: "time_stepping/f/Tile/multiples/2"
+  input: "time_stepping/f/ones/packed/1"
   attr {
     key: "N"
     value {
-      i: 3
+      i: 2
     }
   }
   attr {
@@ -3735,10 +3606,31 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/Tile"
-  op: "Tile"
-  input: "time_stepping/f/ExpandDims"
-  input: "time_stepping/f/Tile/multiples"
+  name: "time_stepping/f/ones/Const"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+        }
+        float_val: 1.0
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ones"
+  op: "Fill"
+  input: "time_stepping/f/ones/packed"
+  input: "time_stepping/f/ones/Const"
   attr {
     key: "T"
     value {
@@ -3746,14 +3638,36 @@ node {
     }
   }
   attr {
-    key: "Tmultiples"
+    key: "index_type"
     value {
       type: DT_INT32
     }
   }
 }
 node {
-  name: "time_stepping/f/ExpandDims_1/dim"
+  name: "time_stepping/f/Sin"
+  op: "Sin"
+  input: "time_stepping/f/mul"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Cos"
+  op: "Cos"
+  input: "time_stepping/f/mul"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "time_stepping/f/concat_1/axis"
   op: "Const"
   attr {
     key: "dtype"
@@ -3768,16 +3682,63 @@ node {
         dtype: DT_INT32
         tensor_shape {
         }
-        int_val: 2
+        int_val: 1
       }
     }
   }
 }
 node {
-  name: "time_stepping/f/ExpandDims_1"
+  name: "time_stepping/f/concat_1"
+  op: "ConcatV2"
+  input: "time_stepping/f/ones"
+  input: "time_stepping/f/Sin"
+  input: "time_stepping/f/Cos"
+  input: "time_stepping/f/concat_1/axis"
+  attr {
+    key: "N"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims"
   op: "ExpandDims"
-  input: "time_stepping/f/concat"
-  input: "time_stepping/f/ExpandDims_1/dim"
+  input: "time_stepping/f/concat_1"
+  input: "time_stepping/f/ExpandDims/dim"
   attr {
     key: "T"
     value {
@@ -3810,7 +3771,7 @@ node {
             size: 2
           }
         }
-        tensor_content: "\001\000\000\000\002\000\000\000"
+        tensor_content: "\001\000\000\000\r\000\000\000"
       }
     }
   }
@@ -3938,6 +3899,276 @@ node {
   }
 }
 node {
+  name: "time_stepping/f/Tile/multiples/0"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile/multiples/2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile/multiples"
+  op: "Pack"
+  input: "time_stepping/f/Tile/multiples/0"
+  input: "time_stepping/f/strided_slice_8"
+  input: "time_stepping/f/Tile/multiples/2"
+  attr {
+    key: "N"
+    value {
+      i: 3
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "axis"
+    value {
+      i: 0
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Tile"
+  op: "Tile"
+  input: "time_stepping/f/ExpandDims"
+  input: "time_stepping/f/Tile/multiples"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tmultiples"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims_1/dim"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/ExpandDims_1"
+  op: "ExpandDims"
+  input: "time_stepping/f/concat"
+  input: "time_stepping/f/ExpandDims_1/dim"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tdim"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "time_stepping/f/Shape_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 2
+          }
+        }
+        tensor_content: "\001\000\000\000\003\000\000\000"
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_9/stack"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_9/stack_1"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 2
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_9/stack_2"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "time_stepping/f/strided_slice_9"
+  op: "StridedSlice"
+  input: "time_stepping/f/Shape_2"
+  input: "time_stepping/f/strided_slice_9/stack"
+  input: "time_stepping/f/strided_slice_9/stack_1"
+  input: "time_stepping/f/strided_slice_9/stack_2"
+  attr {
+    key: "Index"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "begin_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "ellipsis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "end_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "new_axis_mask"
+    value {
+      i: 0
+    }
+  }
+  attr {
+    key: "shrink_axis_mask"
+    value {
+      i: 1
+    }
+  }
+}
+node {
   name: "time_stepping/f/Tile_1/multiples/0"
   op: "Const"
   attr {
@@ -3984,7 +4215,7 @@ node {
   op: "Pack"
   input: "time_stepping/f/Tile_1/multiples/0"
   input: "time_stepping/f/Tile_1/multiples/1"
-  input: "time_stepping/f/strided_slice_8"
+  input: "time_stepping/f/strided_slice_9"
   attr {
     key: "N"
     value {
@@ -4053,7 +4284,7 @@ node {
             size: 3
           }
         }
-        tensor_content: "\001\000\000\000\r\000\000\000\002\000\000\000"
+        tensor_content: "\001\000\000\000\r\000\000\000\003\000\000\000"
       }
     }
   }
@@ -4270,7 +4501,7 @@ node {
             size: 2
           }
         }
-        tensor_content: "\032\000\000\000\024\000\000\000"
+        tensor_content: "\'\000\000\000\024\000\000\000"
       }
     }
   }
@@ -4299,7 +4530,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.3611575663089752
+        float_val: -0.31889641284942627
       }
     }
   }
@@ -4328,7 +4559,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.3611575663089752
+        float_val: 0.31889641284942627
       }
     }
   }
@@ -4458,7 +4689,7 @@ node {
     value {
       shape {
         dim {
-          size: 26
+          size: 39
         }
         dim {
           size: 20
@@ -4916,7 +5147,7 @@ node {
             size: 2
           }
         }
-        tensor_content: "\024\000\000\000\002\000\000\000"
+        tensor_content: "\024\000\000\000\003\000\000\000"
       }
     }
   }
@@ -4945,7 +5176,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.5222329497337341
+        float_val: -0.5107539296150208
       }
     }
   }
@@ -4974,7 +5205,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.5222329497337341
+        float_val: 0.5107539296150208
       }
     }
   }
@@ -5107,7 +5338,7 @@ node {
           size: 20
         }
         dim {
-          size: 2
+          size: 3
         }
       }
     }
@@ -5265,7 +5496,7 @@ node {
             size: 1
           }
         }
-        int_val: 2
+        int_val: 3
       }
     }
   }
@@ -5353,7 +5584,7 @@ node {
     value {
       shape {
         dim {
-          size: 2
+          size: 3
         }
       }
     }
@@ -5551,7 +5782,7 @@ node {
             size: 2
           }
         }
-        tensor_content: "\032\000\000\000\024\000\000\000"
+        tensor_content: "\'\000\000\000\024\000\000\000"
       }
     }
   }
@@ -5580,7 +5811,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.3611575663089752
+        float_val: -0.31889641284942627
       }
     }
   }
@@ -5609,7 +5840,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.3611575663089752
+        float_val: 0.31889641284942627
       }
     }
   }
@@ -5739,7 +5970,7 @@ node {
     value {
       shape {
         dim {
-          size: 26
+          size: 39
         }
         dim {
           size: 20
@@ -6197,7 +6428,7 @@ node {
             size: 2
           }
         }
-        tensor_content: "\024\000\000\000\002\000\000\000"
+        tensor_content: "\024\000\000\000\003\000\000\000"
       }
     }
   }
@@ -6226,7 +6457,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.5222329497337341
+        float_val: -0.5107539296150208
       }
     }
   }
@@ -6255,7 +6486,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.5222329497337341
+        float_val: 0.5107539296150208
       }
     }
   }
@@ -6388,7 +6619,7 @@ node {
           size: 20
         }
         dim {
-          size: 2
+          size: 3
         }
       }
     }
@@ -6546,7 +6777,7 @@ node {
             size: 1
           }
         }
-        int_val: 2
+        int_val: 3
       }
     }
   }
@@ -6634,7 +6865,7 @@ node {
     value {
       shape {
         dim {
-          size: 2
+          size: 3
         }
       }
     }
@@ -6832,7 +7063,7 @@ node {
             size: 2
           }
         }
-        tensor_content: "\032\000\000\000\024\000\000\000"
+        tensor_content: "\'\000\000\000\024\000\000\000"
       }
     }
   }
@@ -6861,7 +7092,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.3611575663089752
+        float_val: -0.31889641284942627
       }
     }
   }
@@ -6890,7 +7121,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.3611575663089752
+        float_val: 0.31889641284942627
       }
     }
   }
@@ -7020,7 +7251,7 @@ node {
     value {
       shape {
         dim {
-          size: 26
+          size: 39
         }
         dim {
           size: 20
@@ -7478,7 +7709,7 @@ node {
             size: 2
           }
         }
-        tensor_content: "\024\000\000\000\002\000\000\000"
+        tensor_content: "\024\000\000\000\003\000\000\000"
       }
     }
   }
@@ -7507,7 +7738,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.5222329497337341
+        float_val: -0.5107539296150208
       }
     }
   }
@@ -7536,7 +7767,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.5222329497337341
+        float_val: 0.5107539296150208
       }
     }
   }
@@ -7669,7 +7900,7 @@ node {
           size: 20
         }
         dim {
-          size: 2
+          size: 3
         }
       }
     }
@@ -7827,7 +8058,7 @@ node {
             size: 1
           }
         }
-        int_val: 2
+        int_val: 3
       }
     }
   }
@@ -7915,7 +8146,7 @@ node {
     value {
       shape {
         dim {
-          size: 2
+          size: 3
         }
       }
     }
@@ -8283,7 +8514,7 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/strided_slice_9/stack"
+  name: "time_stepping/f/strided_slice_10/stack"
   op: "Const"
   attr {
     key: "dtype"
@@ -8307,7 +8538,7 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/strided_slice_9/stack_1"
+  name: "time_stepping/f/strided_slice_10/stack_1"
   op: "Const"
   attr {
     key: "dtype"
@@ -8331,7 +8562,7 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/strided_slice_9/stack_2"
+  name: "time_stepping/f/strided_slice_10/stack_2"
   op: "Const"
   attr {
     key: "dtype"
@@ -8355,12 +8586,12 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/strided_slice_9"
+  name: "time_stepping/f/strided_slice_10"
   op: "StridedSlice"
   input: "time_stepping/f/truediv_1"
-  input: "time_stepping/f/strided_slice_9/stack"
-  input: "time_stepping/f/strided_slice_9/stack_1"
-  input: "time_stepping/f/strided_slice_9/stack_2"
+  input: "time_stepping/f/strided_slice_10/stack"
+  input: "time_stepping/f/strided_slice_10/stack_1"
+  input: "time_stepping/f/strided_slice_10/stack_2"
   attr {
     key: "Index"
     value {
@@ -8407,7 +8638,7 @@ node {
 node {
   name: "time_stepping/f/add"
   op: "Add"
-  input: "time_stepping/f/strided_slice_9"
+  input: "time_stepping/f/strided_slice_10"
   input: "time_stepping/f/stack"
   attr {
     key: "T"
@@ -8441,7 +8672,7 @@ node {
   name: "time_stepping/f/mul_5"
   op: "Mul"
   input: "time_stepping/f/mul_5/x"
-  input: "time_stepping/f/strided_slice_9"
+  input: "time_stepping/f/strided_slice_10"
   attr {
     key: "T"
     value {
@@ -8680,7 +8911,7 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/strided_slice_10/stack"
+  name: "time_stepping/f/strided_slice_11/stack"
   op: "Const"
   attr {
     key: "dtype"
@@ -8704,7 +8935,7 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/strided_slice_10/stack_1"
+  name: "time_stepping/f/strided_slice_11/stack_1"
   op: "Const"
   attr {
     key: "dtype"
@@ -8728,7 +8959,7 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/strided_slice_10/stack_2"
+  name: "time_stepping/f/strided_slice_11/stack_2"
   op: "Const"
   attr {
     key: "dtype"
@@ -8752,12 +8983,12 @@ node {
   }
 }
 node {
-  name: "time_stepping/f/strided_slice_10"
+  name: "time_stepping/f/strided_slice_11"
   op: "StridedSlice"
   input: "Reshape"
-  input: "time_stepping/f/strided_slice_10/stack"
-  input: "time_stepping/f/strided_slice_10/stack_1"
-  input: "time_stepping/f/strided_slice_10/stack_2"
+  input: "time_stepping/f/strided_slice_11/stack"
+  input: "time_stepping/f/strided_slice_11/stack_1"
+  input: "time_stepping/f/strided_slice_11/stack_2"
   attr {
     key: "Index"
     value {
@@ -8804,7 +9035,7 @@ node {
 node {
   name: "time_stepping/f/Neg"
   op: "Neg"
-  input: "time_stepping/f/strided_slice_10"
+  input: "time_stepping/f/strided_slice_11"
   attr {
     key: "T"
     value {
