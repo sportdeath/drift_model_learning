@@ -137,10 +137,14 @@ def f(h, state_batch, control_batch, training, reuse, name="f"):
 
         # We want the system to deaccelerate
         # |velocity_end_n| < |velocity_end_n_prev|
-        stability_loss = tf.reduce_sum(tf.maximum(dstate_batch_n * (dstate_batch_n + 2 * velocity_end_n_prev), 0.))
-        # velocity_loss = tf.reduce_sum(velocity_end_n * velocity_end_n)
-        tf.add_to_collection("stability_losses", stability_loss)
-        # tf.add_to_collection("velocity_losses", velocity_loss)
+        # stability_loss = tf.reduce_sum(tf.maximum(dstate_batch_n * (dstate_batch_n + 2 * velocity_end_n_prev), 0.))
+        # stability_loss = tf.reduce_sum(
+                # tf.maximum((
+                    # tf.abs(velocity_end_n) - \
+                    # tf.abs(velocity_end_n_prev))/h, 0.))
+        # tf.add_to_collection("stability_losses", stability_loss)
+        velocity_loss = tf.abs(velocity_end_n)
+        tf.add_to_collection("velocity_losses", velocity_loss)
 
         # Combine the slices
         velocity_n = tf.concat((
@@ -184,20 +188,21 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error_base = tf.abs(state_check_batch - tf.concat((state_batch, state_check_batch), axis=1)[:,-(params.CHECK_STEPS+1):-1])
     error_relative = error/(error_base + params.MIN_ERROR)
     # error_loss = tf.reduce_sum(error_relative)
-    error_loss = tf.reduce_sum(error)
+    error_loss = tf.reduce_mean(error)
 
     # stability_regularizer = 0.5 * tf.reduce_sum(tf.get_collection("stability_losses"))
-    stability_regularizer = 0.002 * tf.reduce_sum(tf.get_collection("stability_losses"))
+    # stability_regularizer = tf.reduce_mean(tf.get_collection("stability_losses"))
     # regularization_loss = tf.losses.get_regularization_loss()
-    # velocity_regularizer = 0.001 * tf.reduce_sum(tf.get_collection("velocity_losses"))
+    velocity_regularizer = tf.reduce_mean(tf.get_collection("velocity_losses"))
 
-    loss = error_loss # + stability_regularizer #+ velocity_regularizer
+    # loss = error_loss + 0.01 * stability_regularizer #+ velocity_regularizer
+    loss = error_loss + 0.00005 * velocity_regularizer
 
     # Write for summaries
     tf.summary.scalar("loss", loss)
-    tf.summary.scalar("stability_regularizer", stability_regularizer)
+    # tf.summary.scalar("stability_regularizer", stability_regularizer)
     # tf.summary.scalar("regularization_loss", regularization_loss)
-    # tf.summary.scalar("velocity_regularizer", velocity_regularizer)
+    tf.summary.scalar("velocity_regularizer", velocity_regularizer)
     tf.summary.scalar("error_loss", error_loss)
     tf.summary.scalar("x_loss", tf.reduce_mean(params.X_SCALING * error[:,:,params.X_IND]))
     tf.summary.scalar("y_loss", tf.reduce_mean(params.Y_SCALING * error[:,:,params.Y_IND]))
