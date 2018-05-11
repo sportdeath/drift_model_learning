@@ -187,11 +187,11 @@ def compute_loss(h, state_batch, control_batch, state_check_batch, control_check
     error_loss = tf.reduce_sum(error)
 
     # stability_regularizer = 0.5 * tf.reduce_sum(tf.get_collection("stability_losses"))
-    stability_regularizer = 0.1 * tf.reduce_sum(tf.get_collection("stability_losses"))
+    stability_regularizer = 0.002 * tf.reduce_sum(tf.get_collection("stability_losses"))
     # regularization_loss = tf.losses.get_regularization_loss()
     # velocity_regularizer = 0.001 * tf.reduce_sum(tf.get_collection("velocity_losses"))
 
-    loss = error_loss# + stability_regularizer #+ velocity_regularizer
+    loss = error_loss + stability_regularizer #+ velocity_regularizer
 
     # Write for summaries
     tf.summary.scalar("loss", loss)

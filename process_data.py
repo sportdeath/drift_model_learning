@@ -3,6 +3,17 @@ import tensorflow as tf
 
 import params
 
+def random_flips(state_batch, control_batch, flips=[1, -1]):
+    flip = np.random.choice(flips, size=state_batch.shape[0])
+    flip = np.reshape(flip, (-1, 1))
+    state_batch_ = np.copy(state_batch)
+    control_batch_ = np.copy(control_batch)
+    state_batch_[:,:,params.Y_IND] *= flip
+    state_batch_[:,:,params.THETA_IND] *= flip
+    control_batch_[:,:,params.STEER_IND] *= flip
+
+    return state_batch_, control_batch_
+
 def random_batch(state_chunks, control_chunks, p_chunks):
     """
     Generate random batches of data from the dataset.
@@ -41,6 +52,8 @@ def random_batch(state_chunks, control_chunks, p_chunks):
     # Make the state and controls into a numpy array
     state_batch = np.array(state_batch)
     control_batch = np.array(control_batch)
+
+    state_batch, control_batch = random_flips(state_batch, control_batch)
 
     # Divide the arrays into input and verification sections
     state_check_batch = state_batch[:,-params.CHECK_STEPS:,:]
@@ -107,10 +120,17 @@ if __name__ == "__main__":
         for i in range(3):
 
             # Get a random batch from the data
-            state_batch, _, state_check_batch, _ = random_batch(state_chunks, control_chunks, p_chunks)
+            state_batch, control_batch, state_check_batch, control_check_batch = random_batch(state_chunks, control_chunks, p_chunks)
 
             # Plot the batch and the check
+            print("Original.")
             plotting.plot_states([state_batch, state_check_batch])
+
+            state_batch_, control_batch_ = random_flips(state_batch, control_batch, flips=[-1])
+            state_check_batch_, control_check_batch_  = random_flips(state_check_batch, control_check_batch, flips=[-1])
+            print("Flipping!")
+
+            plotting.plot_states([state_batch_, state_check_batch_])
 
             # Plot that same vector normalized
             state_batch_n_tf = set_origin(state_batch, state_batch[:,-1])
